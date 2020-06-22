@@ -20,12 +20,9 @@ To configure the machine according to your needs, define the states (better if y
 In the main loop call update() metod and that's it.
 
 Take a look at the examples provided in the [examples folder](https://github.com/cotestatnt/YA_FSM/tree/master/examples).
-Start from the simplest Blinky 
-
-
-
-This example implements the classic algorithm for opening an automatic gate (simplified)
-https://github.com/cotestatnt/YA_FSM/
+Start from the simplest Blinky https://github.com/cotestatnt/YA_FSM/blob/master/examples/Blinky/Blinky.ino
+or a more advanced like classic algorithm for opening an automatic gate (simplified)
+https://github.com/cotestatnt/YA_FSM/blob/master/examples/AutomaticGate/AutomaticGate.ino
 
 ![Automatic Gate](/esempio_cancello1.png)
 
