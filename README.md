@@ -14,6 +14,8 @@ To update the states, you must frequently call the Update() function in your loo
 
 If any of the transitions associated with the current state satisfy the trigger condition, the machine goes into the next state  defined in transition property.
 
+![SFC example](/SFC_esempio.png)
+
 Each of the states of the machine can be associated with a callback function that will be executed when the state is activated (on entering), when it is left (on leaving) and while it is running (on state). For each status it is also possible to define a maximum duration time, at the end of which a timeout bit will be setted and can be tested with GetTimeout().
 
 To configure the machine according to your needs, define the states (better if you create enumerations for states and for triggers in order to make the usage and layout of FSM clearer) and the configure correctly the transitions between each state. 
@@ -21,10 +23,10 @@ In the main loop call update() metod and that's it.
 
 Take a look at the examples provided in the [examples folder](https://github.com/cotestatnt/YA_FSM/tree/master/examples).
 Start from the simplest Blinky https://github.com/cotestatnt/YA_FSM/blob/master/examples/Blinky/Blinky.ino
+
 or a more advanced like classic algorithm for opening an automatic gate (simplified)
 https://github.com/cotestatnt/YA_FSM/blob/master/examples/AutomaticGate/AutomaticGate.ino
 
-![Automatic Gate](/esempio_cancello1.png)
 
 
 
