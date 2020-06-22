@@ -2,10 +2,10 @@
 #include <Arduino.h>
 #include <YA_FSM.h>
 
-const uint8_t button1 = D1;
-const uint8_t button2 = D2;
+const uint8_t button1 = 2;
+const uint8_t button2 = 3;
 
-const uint8_t led = D4;
+const uint8_t led = 13;
 
 // Create new SC (num States, num Transition)
 YA_FSM myFSM(3, 3);
