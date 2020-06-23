@@ -39,13 +39,13 @@ void setup()
 
 void loop() 
 {
-	// Update State Machine	(true is state changed)
+	// Update State Machine	(true if state changed)
 	if(myFSM.Update()){
 		Serial.print(F("Active state: "));
 		Serial.println(stateName[myFSM.GetState()]);
 	}	
 	
-	// NOT digitalRead() beacuse we enable Pull up resistor in setup() 
+	// NOT digitalRead() because we enable Pull up resistor in setup() 
 	dummyBoolVar = !digitalRead(button1) && !digitalRead(button2);		
 	
 	/*
