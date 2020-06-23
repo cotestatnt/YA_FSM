@@ -7,7 +7,7 @@ const uint8_t button2 = 3;
 
 const uint8_t led = 13;
 
-// Create new SC (num States, num Transition)
+// Create new SM (num States, num Transition)
 YA_FSM myFSM(3, 3);
 
 // State Alias 
@@ -22,7 +22,6 @@ const char *stateName[] = { "Blink 1", "Blink 2", "Blink 3"};
 
 // A simple bool var just to test transition's trigger
 bool dummyBoolVar = false;
-bool var = false;
 
 void setup() 
 {
