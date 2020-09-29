@@ -1,14 +1,13 @@
 
-#include <Arduino.h>
 #include <YA_FSM.h>
 
-const uint8_t button1 = 2;
-const uint8_t button2 = 3;
+const uint8_t button1 = PC11;
+const uint8_t button2 = PC13;
 
-const uint8_t led = 13;
+const uint8_t led = D13;
 
-// Create new SM (num States, num Transition)
-YA_FSM myFSM(3, 3);
+// Create new Finite State Machine
+YA_FSM myFSM;
 
 // State Alias 
 enum State {BLINK1, BLINK2, BLINK3};
@@ -22,11 +21,12 @@ const char *stateName[] = { "Blink 1", "Blink 2", "Blink 3"};
 
 // A simple bool var just to test transition's trigger
 bool dummyBoolVar = false;
+bool var = false;
 
 void setup() 
 {
-	pinMode(button1, INPUT_PULLUP);
-	pinMode(button2, INPUT_PULLUP);
+	pinMode(button1, INPUT_PULLUP);	
+	pinMode(button2, INPUT_PULLUP);	
 	pinMode(led, OUTPUT);
 	Serial.begin(115200);
 	Serial.println(F("Starting State Machine...\n"));
@@ -39,16 +39,12 @@ void setup()
 
 void loop() 
 {
-	// Update State Machine	(true if state changed)
+	// Update State Machine	(true is state changed)
 	if(myFSM.Update()){
 		Serial.print(F("Active state: "));
 		Serial.println(stateName[myFSM.GetState()]);
 	}	
 	
-	// NOT digitalRead() because we enable Pull up resistor in setup() 
-	dummyBoolVar = !digitalRead(button1) && !digitalRead(button2);		
-	
-	/*
 	// When BLINK3 state is active, wait some time and the set true dummyBoolVar
 	// to test transition from BLINK3 to BLINK1 with a bool variables instead a callback function
 	if(myFSM.GetState() == BLINK3) {
@@ -56,10 +52,11 @@ void loop()
 			dummyBoolVar = true;	
 		}	
 	}
-	*/
+	
 	
 
 }
+
 
 
 // Check button status, return true only on rising edge (oldButton == false)
@@ -118,27 +115,17 @@ void onStateBlink3(){
 
 
 // Setup the State Machine properties
-void setupStateMachine()
-{
+void setupStateMachine(){
+
+	//Add States  => name, 		timeout, onEnter callback, onState cb, 	  onLeave cb	
+	myFSM.AddState(stateName[BLINK1], 0, onEnteringBlink1, onStateBlink1, onLeavingBlink1);
+	myFSM.AddState(stateName[BLINK2], 0, onEnteringBlink2, onStateBlink2, onLeavingBlink2);
+	myFSM.AddState(stateName[BLINK3], 0, onEnteringBlink3, onStateBlink3, onLeavingBlink3);
+
 	// Add transitions with related "trigger" callback functions
 	///// ---- Be carefull, total number of transitions MUST be as declared -------  ///////
 	myFSM.AddTransition(BLINK1, BLINK2, checkButton );
 	myFSM.AddTransition(BLINK2, BLINK3, checkButton );
 	// For this transition let'use a bool variable (must be global, because we need fix address)
 	myFSM.AddTransition(BLINK3, BLINK1, dummyBoolVar );
-
-	// Set On Entering callback functions 
-	myFSM.SetOnEntering(BLINK1, onEnteringBlink1);
-	myFSM.SetOnEntering(BLINK2, onEnteringBlink2);
-	myFSM.SetOnEntering(BLINK3, onEnteringBlink3);
-
-	// Set On Leaving callback functions 
-	myFSM.SetOnLeaving(BLINK1, onLeavingBlink1);
-	myFSM.SetOnLeaving(BLINK2, onLeavingBlink2);
-	myFSM.SetOnLeaving(BLINK3, onLeavingBlink3);
-
-	// Add the onState callback function. This will be excuted while the state is active
-	myFSM.SetOnState(BLINK1, onStateBlink1);
-	myFSM.SetOnState(BLINK2, onStateBlink2);
-	myFSM.SetOnState(BLINK3, onStateBlink3);	
 }
