@@ -33,40 +33,46 @@ https://github.com/cotestatnt/YA_FSM/blob/master/examples/AutomaticGate/Automati
 ### Constructor
 
 ```c++
-YA_FSM(uint8_t numStates, uint8_t numTransitions);
+YA_FSM();
+
+------- OLD VERSION  -------
+YA_FSM (uint8_t states, uint8_t transitions);
+---------------------------
 ```
 ### General methods
 ```c++
-// Set up a transition
-void SetTransition(uint8_t transition, uint8_t inputState, uint8_t outputState, condition_cb condition);
-void SetTransition(uint8_t transition, uint8_t inputState, uint8_t outputState, bool condition);
+// Add a state with properties
+uint8_t AddState(const char* name, uint32_t setTimeout,	action_cb onEntering, action_cb onState, action_cb onLeaving);
 
-// Disable a transition
-void RemoveTransition(uint8_t transition);
-	
-// Configure input and output and run actions of a state
-void SetOnEntering(uint8_t state, action_cb action);
-void SetOnLeaving(uint8_t state, action_cb action);
-void SetOnState(uint8_t state, action_cb action, uint32_t setTimeout = 0)   // 0 disabled
-
-void ClearOnEntering(uint8_t state);
-void ClearOnLeaving(uint8_t state);
-void ClearOnState(uint8_t state)
-	
-// Get current state
+// Get current state index
 uint8_t GetState() const;
 
 // Set or modify a state timeout (preset = milliseconds)
-void SetTimeout(uint8_t state, uint32_t preset);
+void SetTimeout(uint8_t index, uint32_t preset);
 
 // Check if a state is timeouted
-bool GetTimeout(uint8_t state);
+bool GetTimeout(uint8_t index);
 
 // Get the time (milliseconds) when state was activated
-uint32_t GetEnteringTime(uint8_t state) 
+uint32_t GetEnteringTime(uint8_t index) 
 	
 // Update state machine
 bool Update();
+
+// Set up a transition
+void SetTransition(uint8_t transition, uint8_t inputState, uint8_t outputState, condition_cb condition);
+void SetTransition(uint8_t transition, uint8_t inputState, uint8_t outputState, bool condition);
+	
+------- OLD VERSION  -------
+// Configure input and output and run actions of a state
+void SetOnEntering(uint8_t index, action_cb action);
+void SetOnLeaving(uint8_t index, action_cb action);
+void SetOnState(uint8_t index, action_cb action, uint32_t setTimeout = 0)   // 0 disabled
+
+void ClearOnEntering(uint8_t index);
+void ClearOnLeaving(uint8_t index);
+void ClearOnState(uint8_t index);
+
 ```
 
 ### Supported boards
@@ -74,5 +80,5 @@ The library works virtually with every boards supported by Arduino framework (no
 
 
 
-
++ 1.1.0 Dinamic memory allocation for states and transitions
 + 1.0.0 Initial version
