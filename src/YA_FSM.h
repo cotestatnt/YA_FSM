@@ -6,7 +6,7 @@
 #ifndef YA_FSM_H
 #define YA_FSM_H
 #include "Arduino.h"
-
+#include <functional>
 
 class YA_FSM
 {
