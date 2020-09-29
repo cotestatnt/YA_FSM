@@ -6,12 +6,16 @@
 #ifndef YA_FSM_H
 #define YA_FSM_H
 #include "Arduino.h"
-#include <functional>
+
+//#include <functional>			// Not supported on AVR platform
 
 class YA_FSM
 {
-	using action_cb = std::function<void()>;
-	using condition_cb = std::function<bool()>;
+	//using action_cb = std::function<void()>;
+	//using condition_cb = std::function<bool()>;
+
+	typedef bool(*condition_cb)();
+	typedef void(*action_cb)();
 
 	struct State {		
 		uint8_t 	index = 0;
