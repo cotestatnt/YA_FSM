@@ -42,7 +42,7 @@ YA_FSM (uint8_t states, uint8_t transitions);
 ### General methods
 ```c++
 // Add a state with properties
-uint8_t AddState(const char* name, uint32_t setTimeout,	action_cb onEntering, action_cb onState, action_cb onLeaving);
+uint8_t AddState(const char* name, uint32_t setTimeout,	callback onEntering, cb onState, cb onLeaving);
 
 // Get current state index
 uint8_t GetState() const;
