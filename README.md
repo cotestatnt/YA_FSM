@@ -60,8 +60,8 @@ uint32_t GetEnteringTime(uint8_t index)
 bool Update();
 
 // Set up a transition
-void SetTransition(uint8_t transition, uint8_t inputState, uint8_t outputState, condition_cb condition);
-void SetTransition(uint8_t transition, uint8_t inputState, uint8_t outputState, bool condition);
+void AddTransition(uint8_t inputState, uint8_t outputState, condition_cb condition);
+void AddTransition(uint8_t inputState, uint8_t outputState, bool condition);
 	
 ------- OLD VERSION  -------
 // Configure input and output and run actions of a state
