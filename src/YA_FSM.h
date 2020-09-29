@@ -3,66 +3,88 @@
   Cotesta Tolentino, 2020.  
   Released into the public domain.
 */
-
 #ifndef YA_FSM_H
 #define YA_FSM_H
 #include "Arduino.h"
 
+
 class YA_FSM
 {
-	typedef bool(*condition_cb)();
-	typedef void(*action_cb)();
+	using action_cb = std::function<void()>;
+	using condition_cb = std::function<bool()>;
 
-	typedef struct {
+	struct State {		
+		uint8_t 	index = 0;
+		bool 		timeout = false;
+		uint32_t 	setTimeout = 0;	// 0 -> No timeout
+		uint32_t 	enterTime;		
 		action_cb 	OnEntering;
 		action_cb 	OnLeaving;
-		action_cb 	OnState;
-		uint32_t 	enterTime;		
-		uint32_t 	setTimeout;			// 0 -> No timeout
-		bool 		timeout = false;
-	} State;
+		action_cb 	OnState;			
+		const char 	*stateName;
+		State		*nextState;
+	} ;
 
-	typedef struct {
+	struct Transition{
 		uint8_t 		InputState;
 		uint8_t 		OutputState;
 		condition_cb 	Condition;
 		bool   			*ConditionVar;
-	} Transition;
+		Transition 		*nextTransition;
+	} ;
 	
 public:
-	YA_FSM(uint8_t numStates, uint8_t numTransitions);
-	uint8_t AddTransition(uint8_t inputState, uint8_t outputState, condition_cb condition);	
-	uint8_t AddTransition(uint8_t inputState, uint8_t outputState, bool &condition);	
+	// Default constructor
+	YA_FSM() {};
 	
-	void SetOnEntering(uint8_t state, action_cb action);
-	void SetOnLeaving(uint8_t state, action_cb action);
-	void SetOnState(uint8_t state, action_cb action, uint32_t setTimeout = 0);
+	// For compatibility with old version 
+	explicit YA_FSM (uint8_t st, uint8_t tr) 
+	: _numStates(st), _numTransitions(tr)  {
+		initVariables();	
+	};
 	
-	void ClearOnEntering(uint8_t state);
-	void ClearOnLeaving(uint8_t state);
-	void ClearOnState(uint8_t state);
+	uint8_t 	AddState(const char* name, uint32_t setTimeout,
+				 	action_cb onEntering, action_cb onState, action_cb onLeaving);
+
+	uint8_t 	AddTransition(uint8_t inputState, uint8_t outputState, condition_cb condition);	
+	uint8_t 	AddTransition(uint8_t inputState, uint8_t outputState, bool &condition);
+	uint8_t 	GetState() const;
+	uint32_t 	GetEnteringTime(uint8_t index);
+	void 		SetTimeout(uint8_t index, uint32_t preset); 
+	bool 		GetTimeout(uint8_t index);
+	bool 		Update();	
 	
-	uint8_t GetState() const;
-	uint32_t GetEnteringTime(uint8_t _state);
-	void SetTimeout(uint8_t state, uint32_t preset);
-	bool GetTimeout(uint8_t _state);
-	bool Update();
+	// only for compatibility with old version    
+	void 	SetOnEntering(uint8_t index, action_cb action);
+	void 	SetOnLeaving(uint8_t index, action_cb action);
+	void 	SetOnState(uint8_t index, action_cb action, uint32_t setTimeout = 0);	
+	void 	ClearOnEntering(uint8_t index);
+	void 	ClearOnLeaving(uint8_t index);
+	void 	ClearOnState(uint8_t index);
+	///////////////////////////////////////////////////////
 	
 private:
-	State *_states;
-	uint8_t _numStates;
-	uint8_t _currentStateIndex;
+	uint8_t 		_stateIndex;
+	State 			*_currentState = nullptr;
+	State 			*_firstState = nullptr;
+	State 			*_lastState = nullptr;
 
+	uint8_t 		_currentTransitionIndex;	
+	Transition 		*_firstTransition = nullptr;
+	Transition 		*_lastTransition = nullptr;
 
-	Transition *_transitions;
-	uint8_t _numTransitions;
-	uint8_t _currentTransitionIndex;
+	YA_FSM::State*  GetStatePt(uint8_t index);	
+	void 			SetState(uint8_t index);
 
-	void SetState(uint8_t state, bool launchLeaving, bool launchEntering);
-	void SetTransition(uint8_t transition, uint8_t inputState, uint8_t outputState, condition_cb condition);
-	void SetTransition(uint8_t transition, uint8_t inputState, uint8_t outputState, bool &condition);
-
-	void initVariables();
+	// only for compatibility with old version
+	void 			SetState(uint8_t index, bool launchLeaving, bool launchEntering); 
+	void 			initVariables();
+	uint8_t 		_numStates;
+	uint8_t 		_numTransitions;		
+	///////////////////////////////////////////
 };
+
+
+
 #endif
 

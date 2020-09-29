@@ -1,185 +1,190 @@
 #include "YA_FSM.h"
 
 
-YA_FSM::YA_FSM(uint8_t numStates, uint8_t numTransitions)
-{
-	_numStates = numStates;
-	_numTransitions = numTransitions;
 
-	_states = new State[numStates];
-	_transitions = new Transition[numTransitions];
-
-	initVariables();
+YA_FSM::State*  YA_FSM::GetStatePt(uint8_t index){
+	for(State* state = _firstState; state != nullptr; state = state->nextState) 
+		if(state->index == index )
+		 	return state;
+	return nullptr;
 }
 
 
+uint8_t YA_FSM::AddState(const char* name, uint32_t timeout,
+				action_cb onEntering, action_cb onState, action_cb onLeaving){
 
-void YA_FSM::SetState(uint8_t state, bool launchLeaving, bool launchEntering)
-{
-	if (launchLeaving && _states[_currentStateIndex].OnLeaving != nullptr) _states[_currentStateIndex].OnLeaving();
-	if (launchEntering && _states[state].OnEntering != nullptr) _states[state].OnEntering();
+	State *state = new State();
+	if (_firstState == nullptr) {
+		_firstState = state;
+		_currentState = state;
+	}
+	else
+		_lastState->nextState = state;
+	_lastState = state;
 	
-	_currentStateIndex = state;
+	state->OnEntering = onEntering;
+	state->OnLeaving = onLeaving;
+	state->OnState = onState;
+	state->stateName = name;
+	state->setTimeout = timeout;
+	state->index = _stateIndex;
+
+	return _stateIndex++;
+}	
+
+
+
+void YA_FSM::SetState(uint8_t index, bool launchLeaving, bool launchEntering){
+	State* state = GetStatePt(index);
+	if(state != nullptr ){
+		if (state->OnEntering != nullptr) 
+			state->OnEntering();
+
+		if (state->OnLeaving != nullptr) 
+			state->OnLeaving();
+
+		_currentState = state;
+	}	
 }
 
 
 
-uint8_t YA_FSM::AddTransition(uint8_t inputState, uint8_t outputState, condition_cb condition)
-{
-	if (_currentTransitionIndex >= _numTransitions) 
-		return _currentTransitionIndex;
-		
-	SetTransition(_currentTransitionIndex, inputState, outputState, condition);
+uint8_t YA_FSM::AddTransition(uint8_t inputState, uint8_t outputState, condition_cb condition){
+	
+	Transition *transition = new Transition();
+	if (_firstTransition == nullptr) 
+		_firstTransition = transition;
+	else
+		_lastTransition->nextTransition = transition;
+	_lastTransition = transition;
+	
+	transition->Condition = condition;
+	transition->InputState = inputState;
+	transition->OutputState = outputState;
 
 	return _currentTransitionIndex++;
 }
 
-
-uint8_t YA_FSM::AddTransition(uint8_t inputState, uint8_t outputState, bool &condition)
-{
-	if (_currentTransitionIndex >= _numTransitions) 
-		return _currentTransitionIndex;
-		
-	SetTransition(_currentTransitionIndex, inputState, outputState, condition);
+uint8_t YA_FSM::AddTransition(uint8_t inputState, uint8_t outputState, bool &condition){
+	
+	Transition *transition = new Transition();
+	if (_firstTransition == nullptr) 
+		_firstTransition = transition;
+	else
+		_lastTransition->nextTransition = transition;
+	_lastTransition = transition;
+	
+	transition->ConditionVar = &condition;
+	transition->InputState = inputState;
+	transition->OutputState = outputState;
 
 	return _currentTransitionIndex++;
-}
 
-void YA_FSM::SetTransition(uint8_t transition, uint8_t inputState, uint8_t outputState, condition_cb condition)
-{
-	_transitions[transition].InputState = inputState;
-	_transitions[transition].OutputState = outputState;
-	_transitions[transition].Condition = condition;
 }
 
 
-void YA_FSM::SetTransition(uint8_t transition, uint8_t inputState, uint8_t outputState, bool &condition)
-{
-	_transitions[transition].InputState = inputState;
-	_transitions[transition].OutputState = outputState;
-	_transitions[transition].ConditionVar = &condition;
+void YA_FSM::SetOnState(uint8_t index, action_cb action, uint32_t setTimeout ){
+	State* state = GetStatePt(index);
+	state->setTimeout = setTimeout;
+	state->OnState = action;
 }
 
-
-void YA_FSM::SetOnState(uint8_t state, action_cb action, uint32_t setTimeout )
-{
-	_states[state].setTimeout = setTimeout;
-	_states[state].OnState = action;
+void YA_FSM::SetOnEntering(uint8_t index, action_cb action){
+	State* state = GetStatePt(index);
+	state->OnEntering = action;
 }
 
-void YA_FSM::SetOnEntering(uint8_t state, action_cb action)
-{
-	_states[state].OnEntering = action;
+void YA_FSM::SetOnLeaving(uint8_t index, action_cb action){
+	State* state = GetStatePt(index);
+	state->OnLeaving = action;
 }
 
-void YA_FSM::SetOnLeaving(uint8_t state, action_cb action)
-{
-	_states[state].OnLeaving = action;
+void YA_FSM::ClearOnState(uint8_t index){
+	State* state = GetStatePt(index);
+	state->OnState = nullptr;
 }
 
-void YA_FSM::ClearOnState(uint8_t state)
-{
-	_states[state].OnState = nullptr;
+void YA_FSM::ClearOnEntering(uint8_t index){
+	State* state = GetStatePt(index);
+	state->OnEntering = nullptr;
 }
 
-void YA_FSM::ClearOnEntering(uint8_t state)
-{
-	_states[state].OnEntering = nullptr;
+void YA_FSM::ClearOnLeaving(uint8_t index){
+	State* state = GetStatePt(index);
+	state->OnLeaving = nullptr;
 }
 
-void YA_FSM::ClearOnLeaving(uint8_t state)
-{
-	_states[state].OnLeaving = nullptr;
-}
 
 
 
 // Return the current active state
-uint8_t YA_FSM::GetState() const
-{
-	return _currentStateIndex;
+uint8_t YA_FSM::GetState() const{
+	return _currentState->index;
 }
 
 // Return true if timeout
-void YA_FSM::SetTimeout(uint8_t state, uint32_t preset) 
-{
-	_states[state].setTimeout = preset;
+void YA_FSM::SetTimeout(uint8_t index, uint32_t preset) {
+	State* state = GetStatePt(index);
+	if(state != nullptr ){
+		state->setTimeout = preset;
+	}
 }
 
 // Return true if timeout
-bool YA_FSM::GetTimeout(uint8_t state) 
-{
-	return _states[state].timeout;
+bool YA_FSM::GetTimeout(uint8_t index){
+	State* state = GetStatePt(index);
+	if(state != nullptr ){
+		return state->setTimeout;		
+	}
+	return false;
 }
 
  
 // Return current state entering time 
-uint32_t YA_FSM::GetEnteringTime(uint8_t state) 
-{
-	return _states[state].enterTime;
+uint32_t YA_FSM::GetEnteringTime(uint8_t index) {
+	State* state = GetStatePt(index);
+	if(state != nullptr ){
+		return state->enterTime;	
+	}
+	return 0;	
 }
 
-bool YA_FSM::Update()
-{
+bool YA_FSM::Update(){
 	bool stateChanged = false;
 
-	// check if transition condition is true
-	for (int transitionIndex = 0; transitionIndex < _numTransitions; transitionIndex++)
-	{
-		if (_transitions[transitionIndex].InputState == _currentStateIndex)
-		{
+	for(Transition* actualtr = _firstTransition; actualtr != nullptr; actualtr = actualtr->nextTransition) {
+		if(actualtr->InputState == _currentState->index){
 			bool _trigger = false;
-			if (_transitions[transitionIndex].Condition == nullptr)
-				_trigger = *(_transitions[transitionIndex].ConditionVar);
+			if(actualtr->Condition == nullptr)			
+				_trigger = *(actualtr->ConditionVar);
 			else
-				_trigger = _transitions[transitionIndex].Condition();
+				_trigger = actualtr->Condition();
 			
-			if (_trigger)
-			{
+			if (_trigger){
 				// One of the transitions has triggered, set the new state
-				SetState(_transitions[transitionIndex].OutputState, true, true);				
-				_states[_currentStateIndex].enterTime = millis();
-				_states[_currentStateIndex].timeout = false;
+				SetState(actualtr->OutputState, true, true);				
+				_currentState->enterTime = millis();
+				_currentState->timeout = false;
 				stateChanged = true;
 			}
 		}
 
-		// Run the OnState callback function (if defined)
-		_states[_currentStateIndex].OnState();
+		if(_currentState->OnState != nullptr)
+			_currentState->OnState();
 
-		// Check if current state timeout is to be setted
-		if(_states[_currentStateIndex].setTimeout > 0)
-		{
-			if( millis() - _states[_currentStateIndex].enterTime  > _states[_currentStateIndex].setTimeout)
-			{
-				_states[_currentStateIndex].timeout = true;
+		if(_currentState->setTimeout > 0){
+			if( millis() - _currentState->enterTime  > _currentState->setTimeout)	{
+				_currentState->timeout = true;
 			}
-		}
-		
+		}		
 	}
-	
-	
-
 	return stateChanged;
 }
 
-void YA_FSM::initVariables()
-{
-	_currentStateIndex = 0;
-	_currentTransitionIndex = 0;
-	for (int stateIndex = 0; stateIndex < _numStates; stateIndex++)
-	{
-		_states[stateIndex].OnEntering = nullptr;
-		_states[stateIndex].OnLeaving = nullptr;
-		_states[stateIndex].OnState = nullptr;
-		_states[stateIndex].enterTime = 0;
-		_states[stateIndex].setTimeout = 0;
-		_states[stateIndex].timeout = false;
-	}
 
-	for (int transitionIndex = 0; transitionIndex  < _numTransitions; transitionIndex++)
-	{
-		_transitions[transitionIndex].Condition = nullptr;
-		_transitions[transitionIndex].ConditionVar = nullptr;
+
+void YA_FSM::initVariables(){	
+	for(uint8_t i=0; i<_numStates; i++){
+		AddState("", 0, nullptr, nullptr, nullptr);
 	}
 }
