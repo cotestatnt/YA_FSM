@@ -1,6 +1,11 @@
 #include "YA_FSM.h"
 
 
+YA_FSM::State*  YA_FSM::CurrentState(){	
+	return _currentState;
+}
+
+
 
 YA_FSM::State*  YA_FSM::GetStatePt(uint8_t index){
 	for(State* state = _firstState; state != nullptr; state = state->nextState) 
@@ -34,14 +39,13 @@ uint8_t YA_FSM::AddState(const char* name, uint32_t timeout,
 
 
 
-void YA_FSM::SetState(uint8_t index, bool launchLeaving, bool launchEntering){
+void YA_FSM::SetState(uint8_t index, bool launchEntering){
 	State* state = GetStatePt(index);
-	if(state != nullptr ){
-		if (state->OnEntering != nullptr) 
-			state->OnEntering();
-
-		if (state->OnLeaving != nullptr) 
-			state->OnLeaving();
+	if(state != nullptr){
+		if(launchEntering) 
+			state->OnEntering();			
+		else	
+			_oldState->OnLeaving();
 
 		_currentState = state;
 	}	
@@ -116,7 +120,6 @@ void YA_FSM::ClearOnLeaving(uint8_t index){
 
 
 
-
 // Return the current active state
 uint8_t YA_FSM::GetState() const{
 	return _currentState->index;
@@ -162,7 +165,18 @@ bool YA_FSM::Update(){
 			
 			if (_trigger){
 				// One of the transitions has triggered, set the new state
-				SetState(actualtr->OutputState, true, true);				
+				//State* targetState = GetStatePt(actualtr->OutputState);
+				
+				if(_currentState != _oldState){
+					// Enter on state
+					SetState(actualtr->OutputState, true);	
+					_oldState = _currentState;
+				}
+				else{
+					// Exit from state
+					SetState(actualtr->OutputState, false);	
+				}
+
 				_currentState->enterTime = millis();
 				_currentState->timeout = false;
 				stateChanged = true;

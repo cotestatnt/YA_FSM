@@ -6,8 +6,7 @@
 #ifndef YA_FSM_H
 #define YA_FSM_H
 #include "Arduino.h"
-
-//#include <functional>			// Not supported on AVR platform
+//#include <functional>
 
 class YA_FSM
 {
@@ -57,6 +56,7 @@ public:
 	void 		SetTimeout(uint8_t index, uint32_t preset); 
 	bool 		GetTimeout(uint8_t index);
 	bool 		Update();	
+	YA_FSM::State*	CurrentState();
 	
 	// only for compatibility with old version    
 	void 	SetOnEntering(uint8_t index, action_cb action);
@@ -69,6 +69,7 @@ public:
 	
 private:
 	uint8_t 		_stateIndex;
+	State 			*_oldState = nullptr;
 	State 			*_currentState = nullptr;
 	State 			*_firstState = nullptr;
 	State 			*_lastState = nullptr;
@@ -81,7 +82,7 @@ private:
 	void 			SetState(uint8_t index);
 
 	// only for compatibility with old version
-	void 			SetState(uint8_t index, bool launchLeaving, bool launchEntering); 
+	void 			SetState(uint8_t index, bool launchEntering); 
 	void 			initVariables();
 	uint8_t 		_numStates;
 	uint8_t 		_numTransitions;		
