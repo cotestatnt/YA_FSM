@@ -80,5 +80,5 @@ The library works virtually with every boards supported by Arduino framework (no
 
 
 
-+ 1.1.0 Dinamic memory allocation for states and transitions
++ 1.0.1 Dinamic memory allocation for states and transitions
 + 1.0.0 Initial version
