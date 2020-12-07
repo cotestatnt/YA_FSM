@@ -110,7 +110,6 @@ void onStateBlink3(){
 	}
 }
 
-
 // Setup the State Machine properties
 void setupStateMachine(){
 
