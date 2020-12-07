@@ -1,10 +1,8 @@
 
 #include <YA_FSM.h>
 
-const uint8_t button1 = PC11;
-const uint8_t button2 = PC13;
-
-const uint8_t led = D13;
+const uint8_t button = 3;
+const uint8_t led = 13;
 
 // Create new Finite State Machine
 YA_FSM myFSM;
@@ -25,8 +23,7 @@ bool var = false;
 
 void setup() 
 {
-	pinMode(button1, INPUT_PULLUP);	
-	pinMode(button2, INPUT_PULLUP);	
+	pinMode(button, INPUT_PULLUP);	
 	pinMode(led, OUTPUT);
 	Serial.begin(115200);
 	Serial.println(F("Starting State Machine...\n"));
@@ -62,7 +59,7 @@ void loop()
 // Check button status, return true only on rising edge (oldButton == false)
 bool checkButton(){
 	static bool oldButton;
-	bool but = !digitalRead(button2);
+	bool but = !digitalRead(button);
 	delay(40);	// simple debounce button
 	if( but != oldButton){
 		oldButton = but;
