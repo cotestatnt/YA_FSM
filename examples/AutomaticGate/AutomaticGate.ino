@@ -1,16 +1,18 @@
 #include <Arduino.h>
 #include <YA_FSM.h>
 
-
+/*
+//STM32
 const byte BTN_START = PB6;
 const byte SEC_FTC1 = PC7;
 const byte LED_OPEN = PA6;
 const byte LED_CLOSE = PA5;
+*/
 
-// const byte BTN_START = 2;
-// const byte BTN_FTC1 = 3;
-// const byte LED_OPEN = 13;
-// const byte LED_CLOSE = 12;
+const byte BTN_START = 2;
+const byte BTN_FTC1 = 3;
+const byte LED_OPEN = 13;
+const byte LED_CLOSE = 12;
 
 // Create new SC (num States, num Transition)
 YA_FSM stateMachine;
