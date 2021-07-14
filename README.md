@@ -8,7 +8,7 @@ This library is mainly inpired from https://github.com/luisllamasbinaburo/Arduin
 ___
 ### Introduction
 
-The state machine is initialized setting the total number of states and transitions. States represent the different situations in which the machine can be at any time. The transitions connect two states, one at the input and others at the output, and are associated with a trigger condition which carries out the change of state. Triggering can be performed with a bool function() or a global bool variable(check the examples included).
+States represent the different situations in which the machine can be at any time. The transitions connect two states, one at the input and others at the output, and are associated with a trigger condition which carries out the change of state. Triggering can be performed with a bool function() or a global bool variable(check the examples included).
 
 To update the states, you must frequently call the Update() function in your loop(), which checks for transitions that have the current state as input and associated conditions.
 
