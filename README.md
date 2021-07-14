@@ -1,7 +1,7 @@
 
 # YA_FSM Library - YET ANOTHER FINITE STATE MACHINE
 
-The YA_FSM library implements a Petri net inspired state machine with defined states and transitions activated with callback functions.
+The YA_FSM library implements a Petri net inspired state machine with defined states and transitions associated to callback functions.
 
 
 This library is mainly inpired from https://github.com/luisllamasbinaburo/Arduino-StateMachine
