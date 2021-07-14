@@ -21,8 +21,7 @@ const char *stateName[] = { "Blink 1", "Blink 2", "Blink 3"};
 bool dummyBoolVar = false;
 bool var = false;
 
-void setup() 
-{
+void setup() {
 	pinMode(button, INPUT_PULLUP);	
 	pinMode(led, OUTPUT);
 	Serial.begin(115200);
@@ -35,8 +34,7 @@ void setup()
 }
 
 
-void loop() 
-{
+void loop() {
 	// Update State Machine	(true is state changed)
 	if(myFSM.Update()){
 		Serial.print(F("Active state: "));
@@ -58,7 +56,7 @@ void loop()
 
 
 // Check button status, return true only on rising edge (oldButton == false)
-bool checkButton(){
+bool checkButton() {
 	static bool oldButton;
 	bool but = !digitalRead(button);
 	delay(40);	// simple debounce button
