@@ -2,10 +2,17 @@
 #include <Arduino.h>
 #include <YA_FSM.h>
 
+
 const byte BTN_CALL = 2;
-const byte LED_GREEN = 3;
-const byte LED_YELLOW = 4;
-const byte LED_RED = 5;
+const byte GREEN_LED = 3;
+const byte YELLOW_LED = 4;
+const byte RED_LED = 5;
+
+// STM32
+// const byte BTN_CALL = PB6;
+// const byte GREEN_LED = PA5;
+// const byte YELLOW_LED = PA6;
+// const byte RED_LED = PA7;
 
 
 // Create new FSM (num States, num Transition)
@@ -25,44 +32,42 @@ Input input;
 
 // Pedestrian traffic light -> green ligth ON until button pressed
 // #define GREEN_TIME  20000    // always ON
-#define YELLOW_TIME  4000  		  // 4s
-#define RED_TIME 10000  		    // 10s
-#define CALL_DELAY 2000			    // 2s
+#define YELLOW_TIME  4000  		// 4s
+#define RED_TIME     10000  	// 10s
+#define CALL_DELAY   2000		// 2s
 
 
-void setup() 
-{
+void setup() {
 	pinMode(BTN_CALL, INPUT_PULLUP);
-	pinMode(LED_GREEN, OUTPUT);
-	pinMode(LED_YELLOW, OUTPUT);
-	pinMode(LED_RED, OUTPUT);
+	pinMode(GREEN_LED, OUTPUT);
+	pinMode(YELLOW_LED, OUTPUT);
+	pinMode(RED_LED, OUTPUT);
 
 	Serial.begin(115200);
 	Serial.println(F("Starting State Machine...\n"));
-	setupStateMachine();	
+	setupStateMachine();
 
 	// Initial state
 	Serial.print(F("Active state: "));
 	Serial.println(stateName[stateMachine.GetState()]);
 }
 
-void loop() 
-{
+void loop() {
 
 	// Update State Machine	(true is state changed)
 	if(stateMachine.Update()){
 		Serial.print(F("Active state: "));
 		Serial.println(stateName[stateMachine.GetState()]);
 	}
-	
+
 }
 
 
 
 void setLight(bool light[]){
-	digitalWrite(LED_GREEN, light[0]);
-	digitalWrite(LED_YELLOW, light[1]);
-	digitalWrite(LED_RED, light[2]);
+	digitalWrite(GREEN_LED, light[0]);
+	digitalWrite(YELLOW_LED, light[1]);
+	digitalWrite(RED_LED, light[2]);
 }
 
 
@@ -102,7 +107,7 @@ void setupStateMachine()
 	// Add transitions with related callback functions
 	///// ---- Be carefull, total number of transitions MUST be as declared -------  ///////
 	stateMachine.AddTransition(RED, GREEN, [](){return input == Input::StartGreen;}	);
-	stateMachine.AddTransition(YELLOW, RED, [](){return input == Input::StartRed;}  );	
+	stateMachine.AddTransition(YELLOW, RED, [](){return input == Input::StartRed;}  );
 	stateMachine.AddTransition(CALL, YELLOW, [](){return input == Input::StartYellow;});
 
 	// In this example we check the button state in the callback function
@@ -110,12 +115,12 @@ void setupStateMachine()
 	// After this, state will change and so, the function will not be called anymore
 	stateMachine.AddTransition(GREEN, CALL,
 		[](){
-			if(digitalRead(BTN_CALL) == LOW){					
+			if(digitalRead(BTN_CALL) == LOW){
 				Serial.println(F("Start button pressed"));
 				return true;
-			}		
-			return false;	
-		});	
+			}
+			return false;
+		});
 
 	// Add on enetering and on leaving actions (previuos defined)
 	stateMachine.SetOnEntering(GREEN, onEnteringGreen);
@@ -129,35 +134,35 @@ void setupStateMachine()
 
 	// Add the onState callback function. This will be excuted while the state is active
 
-	// State GREEN active 
+	// State GREEN active
 	// Pedestrian traffic light -> green ligth ON untile button pressed
-	stateMachine.SetOnState(GREEN,	
-		[](){ 
+	stateMachine.SetOnState(GREEN,
+		[](){
 			bool _ligth[] = {1, 0, 0 };
 			setLight(_ligth);
 		});
 
 	// State YELLOW active (with timeout)
-	stateMachine.SetOnState(YELLOW, 
-		[](){ 
+	stateMachine.SetOnState(YELLOW,
+		[](){
 			bool _ligth[] = {0, 1, 0 };
 			setLight(_ligth);
 
 			// Check if current state has timeouted, if yes go to next
-			bool timeout = stateMachine.GetTimeout( stateMachine.GetState() ); 
+			bool timeout = stateMachine.GetTimeout( stateMachine.GetState() );
 			if( timeout) {
-				input = Input::StartRed;	
+				input = Input::StartRed;
 			}
 		},
 		YELLOW_TIME );
 
 	// State RED active (with timeout)
-	stateMachine.SetOnState(RED, 
-		[](){ 
+	stateMachine.SetOnState(RED,
+		[](){
 			bool _ligth[] = {0, 0, 1 };
 			setLight(_ligth);
-			
-			// Check if current state has timeouted, if yes go to next 
+
+			// Check if current state has timeouted, if yes go to next
 			if( stateMachine.GetTimeout( stateMachine.GetState() ) ) {
 				input = Input::StartGreen;
 			}
@@ -166,8 +171,8 @@ void setupStateMachine()
 		RED_TIME );
 
 	// State CALL active (with timeout)
-	stateMachine.SetOnState(CALL, 
-		[](){ 
+	stateMachine.SetOnState(CALL,
+		[](){
 			// Check if current state has timeouted, if yes go to next
 			if( stateMachine.GetTimeout( stateMachine.GetState() ) ) {
 				input = Input::StartYellow;
@@ -175,5 +180,5 @@ void setupStateMachine()
 		},
 		CALL_DELAY );
 
-	
+
 }
