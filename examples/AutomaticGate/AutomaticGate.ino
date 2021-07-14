@@ -35,7 +35,7 @@ uint8_t currentState;
 void setup()
 {
   pinMode(BTN_START, INPUT_PULLUP);
-  pinMode(BTN_FTC1, INPUT_PULLUP);
+  pinMode(SEC_FTC1, INPUT_PULLUP);
   pinMode(LED_OPEN, OUTPUT);
   pinMode(LED_CLOSE, OUTPUT);
 
@@ -59,7 +59,7 @@ void loop() {
     delay(500); // debounce button
   }
 
-  if (digitalRead(BTN_FTC1) == LOW) {
+  if (digitalRead(SEC_FTC1) == LOW) {
     input = Input::xFTC;
     Serial.println(F("FTC interrupted"));
     delay(100); // debounce button
@@ -139,8 +139,8 @@ void onStateOpening() {
 // Setup the State Machine
 void setupStateMachine()
 {
-	//Add States               => name, 		timeout, onEnter callback, onState cb, 	  onLeave cb
-	stateMachine.AddState(stateName[CLOSED],  0,          onEnteringClosed, onStateClosed, nullptr);
+  //Add States          => name, 	   timeout,     onEnter callback, onState cb, 	 onLeave cb
+  stateMachine.AddState(stateName[CLOSED],  0,          onEnteringClosed, onStateClosed, nullptr);
   stateMachine.AddState(stateName[CLOSING], CLOSE_TIME, nullptr, onStateClosing, nullptr);
   stateMachine.AddState(stateName[OPENED],  WAIT_TIME,  onEnteringOpened, onStateOpened, nullptr);
   stateMachine.AddState(stateName[OPENING], OPEN_TIME,  nullptr, onStateOpening, nullptr);
