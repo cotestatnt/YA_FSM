@@ -34,6 +34,7 @@ void setup()
 	Serial.println(stateName[myFSM.GetState()]);
 }
 
+
 void loop() 
 {
 	// Update State Machine	(true is state changed)
