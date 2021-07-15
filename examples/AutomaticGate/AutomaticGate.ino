@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include <YA_FSM.h>
 
 /*
@@ -9,8 +8,8 @@ const byte LED_OPEN = PA6;
 const byte LED_CLOSE = PA5;
 */
 
+const byte SEC_FTC1 = 3;
 const byte BTN_START = 2;
-const byte BTN_FTC1 = 3;
 const byte LED_OPEN = 13;
 const byte LED_CLOSE = 12;
 
@@ -18,40 +17,41 @@ const byte LED_CLOSE = 12;
 YA_FSM stateMachine;
 
 // Input Alias. We use Input as trigging condition in defined transition
-enum Input {xSTART_OPEN, xOPENED, xWAIT_DONE, xCLOSED, xFTC, xUNKNOWN};
+enum Input {xSTART_OPEN, xOPENED, xWAIT_DONE, xCLOSED, xFTC, xREOPEN};
 
 // State Alias
-enum State {CLOSED, CLOSING, OPENED, OPENING};
+enum State {CLOSED, CLOSING, OPENED, OPENING, STOP_WAIT};
 
 // Helper for print labels instead integer when state change
-const char *stateName[] = { "CLOSED", "CLOSING", "OPENED", "OPENING"};
+const char *stateName[] = { "CLOSED", "CLOSING", "OPENED", "OPENING", "STOP_WAIT"};
 
 // Stores last user input and the current active state
 Input input;
 uint8_t currentState;
 
-#define OPEN_TIME  10000  // 15s
-#define WAIT_TIME  8000  // 15s
-#define CLOSE_TIME 10000  // 10s
+bool securityOpen = false;
 
-void setup()
-{
+#define OPEN_TIME       10000  
+#define WAIT_OPEN_TIME  8000  
+#define CLOSE_TIME      10000 
+#define WAIT_FTC_TIME   5000    // If FTC1 during CLOSING, stop all, wait and then open again
+
+void setup() {
   pinMode(BTN_START, INPUT_PULLUP);
   pinMode(SEC_FTC1, INPUT_PULLUP);
   pinMode(LED_OPEN, OUTPUT);
   pinMode(LED_CLOSE, OUTPUT);
 
   Serial.begin(115200);
-
   Serial.println(F("Starting State Machine...\n"));
   setupStateMachine();
 
-  // Initial state
+  // Set initial state
   input = Input::xCLOSED;
   stateMachine.Update();
   currentState = stateMachine.GetState();
   Serial.print(F("Active state: "));
-  Serial.println(stateName[currentState]);
+  Serial.println(stateMachine.GetName());
 }
 
 void loop() {
@@ -67,11 +67,11 @@ void loop() {
     delay(100); // debounce button
   }
 
-  // Update State Machine	(true is state changed)
+  // Update State Machine  (true is state changed)
   if (stateMachine.Update()) {
     currentState = stateMachine.GetState();
     Serial.print(F("Active state: "));
-    Serial.println(stateName[currentState]);
+    Serial.println(stateMachine.GetName());
   }
 }
 
@@ -131,26 +131,40 @@ void onStateOpening() {
   }
 
   // After while, gate is opened.
-  // Check if current state has timeouted,  then trigger for the next state
+  // Check if current state has timeouted, then trigger for the next state
   bool timeout = stateMachine.GetTimeout(currentState);
   if (timeout) {
     input = Input::xOPENED;
   }
 }
 
+
+void onStateStopWait() {
+  // Stop immediatly, and after a while re-open the gate
+  digitalWrite(LED_CLOSE, LOW);
+  digitalWrite(LED_OPEN, LOW);  
+  // Check if current state has timeouted, then trigger for the next state
+  bool timeout = stateMachine.GetTimeout(currentState);
+  if (timeout) {
+    input = Input::xREOPEN;
+  }  
+}
+
 // Setup the State Machine
 void setupStateMachine()
 {
-  //Add States          => name, 	   timeout,     onEnter callback, onState cb, 	 onLeave cb
+  //Add States          => name,     timeout,     onEnter callback, onState cb,    onLeave cb
   stateMachine.AddState(stateName[CLOSED],  0,          onEnteringClosed, onStateClosed, nullptr);
   stateMachine.AddState(stateName[CLOSING], CLOSE_TIME, nullptr, onStateClosing, nullptr);
-  stateMachine.AddState(stateName[OPENED],  WAIT_TIME,  onEnteringOpened, onStateOpened, nullptr);
+  stateMachine.AddState(stateName[OPENED],  WAIT_OPEN_TIME,  onEnteringOpened, onStateOpened, nullptr);
   stateMachine.AddState(stateName[OPENING], OPEN_TIME,  nullptr, onStateOpening, nullptr);
+  stateMachine.AddState(stateName[STOP_WAIT], WAIT_FTC_TIME,  nullptr, onStateStopWait, nullptr);
 
    // Add transitions with related callback functions ( FROM, TO, Trigger)
   stateMachine.AddTransition(CLOSED, OPENING, [](){return input == xSTART_OPEN; });
   stateMachine.AddTransition(OPENING, OPENED, [](){return input == xOPENED;     });
   stateMachine.AddTransition(OPENED, CLOSING, [](){return input == xWAIT_DONE;  });
   stateMachine.AddTransition(CLOSING, CLOSED, [](){return input == xCLOSED;     });
-  stateMachine.AddTransition(CLOSING, OPENING,[](){return input == xFTC;        });
+  stateMachine.AddTransition(CLOSING, STOP_WAIT,[](){return input == xFTC;      });
+  stateMachine.AddTransition(STOP_WAIT, OPENING, [](){return input == xREOPEN;  });
 }
