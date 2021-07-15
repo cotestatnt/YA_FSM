@@ -47,11 +47,21 @@ uint8_t AddState(const char* name, uint32_t setTimeout,	callback onEntering, cb 
 // Get current state index
 uint8_t GetState() const;
 
+// Get pointer to current state object
+FSM_State* CurrentState();
+
+// Get pointer to a specific state object passing the index
+FSM_State*  GetStateAt(uint8_t index);
+
+// Get active state name
+const char* ActiveStateName();
+
 // Set or modify a state timeout (preset = milliseconds)
 void SetTimeout(uint8_t index, uint32_t preset);
 
 // Check if a state is timeouted
-bool GetTimeout(uint8_t index);
+bool GetTimeout(uint8_t index);		// deprecated
+bool timeout(uint8_t index);		// More clear method name
 
 // Get the time (milliseconds) when state was activated
 uint32_t GetEnteringTime(uint8_t index) 
@@ -62,6 +72,10 @@ bool Update();
 // Set up a transition
 void AddTransition(uint8_t inputState, uint8_t outputState, condition_cb condition);
 void AddTransition(uint8_t inputState, uint8_t outputState, bool condition);
+
+// Set up a state
+uint8_t AddState(const char* name, uint32_t maxTime, uint32_t minTime,	action_cb onEntering, action_cb onState, action_cb onLeaving);
+uint8_t AddState(const char* name, uint32_t maxTime, action_cb onEntering, action_cb onState, action_cb onLeaving);
 	
 ------- OLD VERSION  -------
 // Configure input and output and run actions of a state
@@ -72,13 +86,12 @@ void SetOnState(uint8_t index, action_cb action, uint32_t setTimeout = 0)   // 0
 void ClearOnEntering(uint8_t index);
 void ClearOnLeaving(uint8_t index);
 void ClearOnState(uint8_t index);
-
 ```
 
 ### Supported boards
 The library works virtually with every boards supported by Arduino framework (no hardware dependency)
 
-
-
++ 1.0.3 Added ActiveStateName() method and updated all examples with new style (addTransition() and addStep() )
++ 1.0.2 Bug fix
 + 1.0.1 Dinamic memory allocation for states and transitions
 + 1.0.0 Initial version
