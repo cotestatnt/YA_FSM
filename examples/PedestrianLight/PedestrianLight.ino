@@ -38,7 +38,6 @@ Input input;
 #define RED_TIME     10000    // 10s
 #define CALL_DELAY   2000   // 2s
 
-
 void setup() {
   pinMode(BTN_CALL, INPUT_PULLUP);
   pinMode(GREEN_LED, OUTPUT);
@@ -62,8 +61,6 @@ void loop() {
   }
 }
 
-
-
 void setLight(bool light[]){
   digitalWrite(GREEN_LED, light[0]);
   digitalWrite(YELLOW_LED, light[1]);
@@ -72,7 +69,6 @@ void setLight(bool light[]){
 
 
 /////////// STATE MACHINE FUNCTIONS //////////////////
-
 
 // Define "on entering" callback functions
 void onEnteringGreen(){
@@ -173,6 +169,4 @@ void setupStateMachine()
       }
     },
     CALL_DELAY );
-
-
 }
