@@ -32,10 +32,10 @@ Input input;
 bool callButton = false;
 
 // Pedestrian traffic light -> green ligth ON until button pressed
-// #define GREEN_TIME  20000    // always ON
-#define YELLOW_TIME  5000      // 4s
-#define RED_TIME     10000    // 10s
-#define CALL_DELAY   4000   // 2s
+// #define GREEN_TIME  20000   // always ON
+#define YELLOW_TIME  5000      // 5s
+#define RED_TIME     10000     // 10s
+#define CALL_DELAY   4000      // 4s
 
 
 void setup() {
