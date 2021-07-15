@@ -32,10 +32,10 @@ Input input;
 bool callButton = false;
 
 // Pedestrian traffic light -> green ligth ON until button pressed
-// #define GREEN_TIME  20000   // always ON
-#define YELLOW_TIME  5000      // 5s
-#define RED_TIME     10000     // 10s
-#define CALL_DELAY   4000      // 4s
+// #define GREEN_TIME  20000    // always ON
+#define YELLOW_TIME  5000     // 5s
+#define RED_TIME     10000    // 10s
+#define CALL_DELAY   4000     // 4s
 
 
 void setup() {
@@ -57,8 +57,8 @@ void setup() {
 void loop() {
   // Update State Machine (true is state changed)
   if(stateMachine.Update()){
-    Serial.print(F("Active state: "));
-    Serial.println(stateName[stateMachine.GetState()]);
+    Serial.print(F("Active state: "));    
+    Serial.println(stateMachine.GetName());
   }
 }
 
@@ -119,7 +119,8 @@ void onExitRed(){ Serial.println(F("Red light OFF\n")); }
 // Setup the State Machine
 void setupStateMachine() {
 
-  //Add States => name,timeout, onEnter cb, onState cb, onLeave cb
+  // Follow the order of defined enumeration for the state definition (will be used as index)
+  // Add States => name,timeout, onEnter cb, onState cb, onLeave cb
   stateMachine.AddState(stateName[RED], RED_TIME, onEnterRed, onStateRed, onExitRed);  
   stateMachine.AddState(stateName[GREEN], 0, onEnterGreen, onStateGreen, onExitGreen);    
   stateMachine.AddState(stateName[YELLOW], YELLOW_TIME, onEnterYellow, onStateYellow, onExitYellow);  
