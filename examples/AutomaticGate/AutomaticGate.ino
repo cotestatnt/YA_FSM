@@ -23,7 +23,7 @@ enum Input {xSTART_OPEN, xOPENED, xWAIT_DONE, xCLOSED, xFTC, xREOPEN};
 enum State {CLOSED, CLOSING, OPENED, OPENING, STOP_WAIT};
 
 // Helper for print labels instead integer when state change
-const char *stateName[] = { "CLOSED", "CLOSING", "OPENED", "OPENING", "STOP_WAIT"};
+const char * const stateName[] PROGMEM = { "CLOSED", "CLOSING", "OPENED", "OPENING", "STOP_WAIT"};
 
 // Stores last user input and the current active state
 Input input;
@@ -51,7 +51,7 @@ void setup() {
   stateMachine.Update();
   currentState = stateMachine.GetState();
   Serial.print(F("Active state: "));
-  Serial.println(stateMachine.GetName());
+  Serial.println(stateMachine.ActiveStateName());
 }
 
 void loop() {
@@ -71,7 +71,7 @@ void loop() {
   if (stateMachine.Update()) {
     currentState = stateMachine.GetState();
     Serial.print(F("Active state: "));
-    Serial.println(stateMachine.GetName());
+    Serial.println(stateMachine.ActiveStateName());
   }
 }
 
@@ -151,8 +151,8 @@ void onStateStopWait() {
 }
 
 // Setup the State Machine
-void setupStateMachine()
-{
+void setupStateMachine() {
+  // Follow the order of defined enumeration for the state definition (will be used as index)
   //Add States          => name,     timeout,     onEnter callback, onState cb,    onLeave cb
   stateMachine.AddState(stateName[CLOSED],  0,          onEnteringClosed, onStateClosed, nullptr);
   stateMachine.AddState(stateName[CLOSING], CLOSE_TIME, nullptr, onStateClosing, nullptr);

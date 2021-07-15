@@ -1,7 +1,6 @@
-
 #include <YA_FSM.h>
 
-const uint8_t button = 3;
+const uint8_t button = 2;
 const uint8_t led = 13;
 
 // Create new Finite State Machine
@@ -11,7 +10,7 @@ YA_FSM myFSM;
 enum State {BLINK1, BLINK2, BLINK3};
 
 // Helper for print labels instead integer when state change
-const char *stateName[] = { "Blink 1", "Blink 2", "Blink 3"};
+const char * const stateName[] PROGMEM = { "Blink1", "Blink2", "Blink3"};
 
 #define BLINK1_TIME  	1000		
 #define BLINK2_TIME 	300 
@@ -30,7 +29,7 @@ void setup() {
 
 	// Initial state
 	Serial.print(F("Active state: "));
-	Serial.println(stateName[myFSM.GetState()]);
+	Serial.println(myFSM.ActiveStateName());
 }
 
 
@@ -38,7 +37,7 @@ void loop() {
 	// Update State Machine	(true is state changed)
 	if(myFSM.Update()){
 		Serial.print(F("Active state: "));
-		Serial.println(stateName[myFSM.GetState()]);
+		Serial.println(myFSM.ActiveStateName());
 	}	
 	
 	// When BLINK3 state is active, wait some time and the set true dummyBoolVar
@@ -48,11 +47,7 @@ void loop() {
 			dummyBoolVar = true;	
 		}	
 	}
-	
-	
-
 }
-
 
 
 // Check button status, return true only on rising edge (oldButton == false)
@@ -69,24 +64,22 @@ bool checkButton() {
 
 /////////// STATE MACHINE FUNCTIONS //////////////////
 
-
 // Define "on entering" callback functions (just a message in this example)
-void onEnteringBlink1(){Serial.println(F("\non entering state BLINK1")); dummyBoolVar = false;}
-
-void onEnteringBlink2(){Serial.println(F("\non entering state BLINK2")); }
-
-void onEnteringBlink3(){Serial.println(F("\non entering state BLINK3")); }
+void onEntering(){
+  Serial.print(F("\non entering state "));
+  Serial.println(myFSM.ActiveStateName());
+}
 
 // Define "on leaving" callback functions (just a message in this example)
-void onLeavingBlink1(){	Serial.println(F("on leaving state BLINK1")); }
-
-void onLeavingBlink2(){	Serial.println(F("on leaving state BLINK2")); }
-
-void onLeavingBlink3(){	Serial.println(F("on leaving state BLINK3")); }
+void onLeaving(){	
+  Serial.print(F("\non leaving state "));
+  Serial.println(myFSM.ActiveStateName());
+}
 
 // Define "on state" callback functions (where led blinking is done)
 void onStateBlink1(){	
 	static uint32_t ledTime;
+  dummyBoolVar = false;
 	if(millis() - ledTime > BLINK1_TIME){
 		ledTime = millis();
 		digitalWrite(led, ! digitalRead(led));
@@ -111,14 +104,14 @@ void onStateBlink3(){
 
 // Setup the State Machine properties
 void setupStateMachine(){
-
+  
+  // Follow the order of defined enumeration for the state definition (will be used as index)
 	//Add States  => name, 		timeout, onEnter callback, onState cb, 	  onLeave cb	
-	myFSM.AddState(stateName[BLINK1], 0, onEnteringBlink1, onStateBlink1, onLeavingBlink1);
-	myFSM.AddState(stateName[BLINK2], 0, onEnteringBlink2, onStateBlink2, onLeavingBlink2);
-	myFSM.AddState(stateName[BLINK3], 0, onEnteringBlink3, onStateBlink3, onLeavingBlink3);
+	myFSM.AddState(stateName[BLINK1], 0, onEntering, onStateBlink1, onLeaving);
+	myFSM.AddState(stateName[BLINK2], 0, onEntering, onStateBlink2, onLeaving);
+	myFSM.AddState(stateName[BLINK3], 0, onEntering, onStateBlink3, onLeaving);
 
-	// Add transitions with related "trigger" callback functions
-	///// ---- Be carefull, total number of transitions MUST be as declared -------  ///////
+	// Add transitions with related "trigger" callback functions	
 	myFSM.AddTransition(BLINK1, BLINK2, checkButton );
 	myFSM.AddTransition(BLINK2, BLINK3, checkButton );
 	// For this transition let'use a bool variable (must be global, because we need fix address)

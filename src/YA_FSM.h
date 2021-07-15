@@ -34,8 +34,6 @@ struct FSM_Transition{
 } ;
 
 
-
-
 class YA_FSM
 {
 	//using action_cb = std::function<void()>;
@@ -68,6 +66,10 @@ public:
 	bool 		Update();	
 	FSM_State*	CurrentState();
 	FSM_State*  GetStateAt(uint8_t index);	
+	
+	inline const char* ActiveStateName() {
+		return _currentState->stateName;
+	}
 	
 	// only for compatibility with old version    
 	void 	SetOnEntering(uint8_t index, action_cb action);

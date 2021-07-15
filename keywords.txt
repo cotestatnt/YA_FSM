@@ -24,6 +24,9 @@ Update	        KEYWORD2
 GetEnteringTime KEYWORD2
 GetTimeout      KEYWORD2
 SetTimeout      KEYWORD2
+GetName		    KEYWORD2
+AddTransition	KEYWORD2
+AddState		KEYWORD2
 
 
 #######################################

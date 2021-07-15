@@ -25,7 +25,7 @@ enum Input {StartCall, StartGreen, StartYellow, StartRed};
 enum State {RED, GREEN, YELLOW, CALL};
 
 // Helper for print labels instead integer when state change
-const char* stateName[] = { "RED", "GREEN", "YELLOW", "CALL"};
+const char * const stateName[] PROGMEM = { "RED", "GREEN", "YELLOW", "CALL"};
 
 // Stores last user input and the current active state
 Input input;
@@ -33,9 +33,9 @@ bool callButton = false;
 
 // Pedestrian traffic light -> green ligth ON until button pressed
 // #define GREEN_TIME  20000    // always ON
-#define YELLOW_TIME  5000     // 5s
+#define YELLOW_TIME  5000      // 4s
 #define RED_TIME     10000    // 10s
-#define CALL_DELAY   4000     // 4s
+#define CALL_DELAY   4000   // 2s
 
 
 void setup() {
@@ -58,7 +58,7 @@ void loop() {
   // Update State Machine (true is state changed)
   if(stateMachine.Update()){
     Serial.print(F("Active state: "));    
-    Serial.println(stateMachine.GetName());
+    Serial.println(stateMachine.ActiveStateName());
   }
 }
 
