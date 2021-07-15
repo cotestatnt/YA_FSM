@@ -41,8 +41,6 @@ YA_FSM (uint8_t states, uint8_t transitions);
 ```
 ### General methods
 ```c++
-// Add a state with properties
-uint8_t AddState(const char* name, uint32_t setTimeout,	callback onEntering, cb onState, cb onLeaving);
 
 // Get current state index
 uint8_t GetState() const;
@@ -66,14 +64,14 @@ bool timeout(uint8_t index);		// More clear method name
 // Get the time (milliseconds) when state was activated
 uint32_t GetEnteringTime(uint8_t index) 
 	
-// Update state machine
+// Update state machine. Run in loop()
 bool Update();
 
-// Set up a transition
+// Set up a transition and trigger input callback function (or variable)
 void AddTransition(uint8_t inputState, uint8_t outputState, condition_cb condition);
 void AddTransition(uint8_t inputState, uint8_t outputState, bool condition);
 
-// Set up a state
+// Set up a state with properties and callback function
 uint8_t AddState(const char* name, uint32_t maxTime, uint32_t minTime,	action_cb onEntering, action_cb onState, action_cb onLeaving);
 uint8_t AddState(const char* name, uint32_t maxTime, action_cb onEntering, action_cb onState, action_cb onLeaving);
 	
