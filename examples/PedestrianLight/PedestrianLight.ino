@@ -1,11 +1,9 @@
-
-#include <Arduino.h>
 #include <YA_FSM.h>
 
-const byte BTN_CALL = 9;
-const byte GREEN_LED = 11;
+const byte BTN_CALL = 2;
+const byte GREEN_LED = 13;
 const byte YELLOW_LED = 12;
-const byte RED_LED = 13;
+const byte RED_LED = 11;
 
 // STM32
 // const byte BTN_CALL = PB6;
@@ -17,11 +15,11 @@ bool green[] = {1, 0, 0 };
 bool yellow[] = {0, 1, 0 };
 bool red[] = {0, 0, 1 };
 
-// Create new FSM (num States, num Transition)
-YA_FSM stateMachine(4, 4);
+// Create new FSM
+YA_FSM stateMachine;
 
 // Input Alias. We use Input as trigging condition in defined transition
-enum Input {StartGreen, StartYellow, StartRed};
+enum Input {StartCall, StartGreen, StartYellow, StartRed};
 
 // State Alias
 enum State {RED, GREEN, YELLOW, CALL};
@@ -31,21 +29,24 @@ const char* stateName[] = { "RED", "GREEN", "YELLOW", "CALL"};
 
 // Stores last user input and the current active state
 Input input;
+bool callButton = false;
 
 // Pedestrian traffic light -> green ligth ON until button pressed
 // #define GREEN_TIME  20000    // always ON
-#define YELLOW_TIME  4000      // 4s
+#define YELLOW_TIME  5000      // 4s
 #define RED_TIME     10000    // 10s
-#define CALL_DELAY   2000   // 2s
+#define CALL_DELAY   4000   // 2s
+
 
 void setup() {
   pinMode(BTN_CALL, INPUT_PULLUP);
   pinMode(GREEN_LED, OUTPUT);
   pinMode(YELLOW_LED, OUTPUT);
   pinMode(RED_LED, OUTPUT);
-
+  attachInterrupt(digitalPinToInterrupt(BTN_CALL), isrButtonCall, FALLING);
+  
   Serial.begin(115200);
-  Serial.println(F("Starting State Machine...\n"));
+  Serial.println(F("Starting the Finite State Machine...\n"));
   setupStateMachine();
 
   // Initial state
@@ -61,6 +62,14 @@ void loop() {
   }
 }
 
+// Check the Call button with an Interrupt Service Routine
+void isrButtonCall(){
+  if(stateMachine.GetState() == GREEN) {
+   Serial.println(F("CALL button pressed"));
+   input = StartCall;
+  }
+}
+
 void setLight(bool light[]){
   digitalWrite(GREEN_LED, light[0]);
   digitalWrite(YELLOW_LED, light[1]);
@@ -68,105 +77,57 @@ void setLight(bool light[]){
 }
 
 
-/////////// STATE MACHINE FUNCTIONS //////////////////
+/////////// STATE MACHINE CALLBACK FUNCTIONS //////////////////
+void onStateGreen() {
+  setLight(green);
+}
+
+void onStateYellow() {
+  setLight(yellow);
+  // Check if current state has timeouted, if yes go to next  
+  if( stateMachine.GetTimeout(stateMachine.GetState()) ) {
+    input = StartRed;
+  }    
+}
+
+void onStateRed() {
+  setLight(red);
+  // Check if current state has timeouted, if yes go to next
+  if( stateMachine.GetTimeout(stateMachine.GetState()) ) {
+    input = StartGreen;
+  } 
+}
+
+void onStateCall() {
+  // Check if current state has timeouted, if yes go to next
+  if( stateMachine.GetTimeout( stateMachine.GetState() ) ) {
+    input = StartYellow;
+  }
+}
 
 // Define "on entering" callback functions
-void onEnteringGreen(){
-  Serial.println(F("Green light ON"));
-}
-
-void onEnteringYellow(){
-  Serial.println(F("Yellow light ON"));
-}
-
-void onEnteringRed(){
-  Serial.println(F("Red light ON"));
-}
+void onEnterGreen(){ Serial.println(F("Green light ON")); }
+void onEnterYellow(){ Serial.println(F("Yellow light ON")); }
+void onEnterRed(){ Serial.println(F("Red light ON")); }
 
 // Define "on leaving" callback functions
-void onLeavingGreen(){
-  Serial.println(F("Green light OFF\n"));
-}
-
-void onLeavingYellow(){
-  Serial.println(F("Yellow light OFF\n"));
-}
-
-void onLeavingRed(){
-  Serial.println(F("Red light OFF\n"));
-}
+void onExitGreen(){ Serial.println(F("Green light OFF\n")); }
+void onExitYellow(){ Serial.println(F("Yellow light OFF\n")); }
+void onExitRed(){ Serial.println(F("Red light OFF\n")); }
 
 
 // Setup the State Machine
-void setupStateMachine()
-{
-  // Add transitions with related callback functions
-  ///// ---- Be carefull, total number of transitions MUST be as declared -------  ///////
+void setupStateMachine() {
+
+  //Add States => name,timeout, onEnter cb, onState cb, onLeave cb
+  stateMachine.AddState(stateName[RED], RED_TIME, onEnterRed, onStateRed, onExitRed);  
+  stateMachine.AddState(stateName[GREEN], 0, onEnterGreen, onStateGreen, onExitGreen);    
+  stateMachine.AddState(stateName[YELLOW], YELLOW_TIME, onEnterYellow, onStateYellow, onExitYellow);  
+  stateMachine.AddState(stateName[CALL], CALL_DELAY, nullptr, onStateCall, nullptr);  
+  
+  // Add transitions with related trigger input callback functions  
   stateMachine.AddTransition(RED, GREEN, [](){return input == Input::StartGreen;} );
   stateMachine.AddTransition(YELLOW, RED, [](){return input == Input::StartRed;}  );
   stateMachine.AddTransition(CALL, YELLOW, [](){return input == Input::StartYellow;});
-
-  // In this example we check the button state in the callback function
-  // Here debounce delay (or others type) is not more needed because we check button only during GREEN state
-  // After this, state will change and so, the function will not be called anymore
-  stateMachine.AddTransition(GREEN, CALL,
-    [](){
-      if(digitalRead(BTN_CALL) == LOW){
-        Serial.println(F("Start button pressed"));
-        return true;
-      }
-      return false;
-    });
-
-  // Add on enetering and on leaving actions (previuos defined)
-  stateMachine.SetOnEntering(GREEN, onEnteringGreen);
-  stateMachine.SetOnEntering(YELLOW, onEnteringYellow);
-  stateMachine.SetOnEntering(RED, onEnteringRed);
-
-  // On leavine callback functions ( inline)
-  stateMachine.SetOnLeaving(GREEN, onLeavingGreen);
-  stateMachine.SetOnLeaving(YELLOW, onLeavingYellow);
-  stateMachine.SetOnLeaving(RED, onLeavingRed);
-
-  // Add the onState callback function. This will be excuted while the state is active
-
-  // State GREEN active
-  // Pedestrian traffic light -> green ligth ON untile button pressed
-  stateMachine.SetOnState(GREEN, [](){ setLight(green); });
-
-  // State YELLOW active (with timeout)
-  stateMachine.SetOnState(YELLOW,
-    [](){
-      setLight(yellow);
-
-      // Check if current state has timeouted, if yes go to next
-      bool timeout = stateMachine.GetTimeout( stateMachine.GetState() );
-      if( timeout) {
-        input = StartRed;
-      }
-    },
-    YELLOW_TIME );
-
-  // State RED active (with timeout)
-  stateMachine.SetOnState(RED,
-    [](){
-      setLight(red);
-
-      // Check if current state has timeouted, if yes go to next
-      if( stateMachine.GetTimeout( stateMachine.GetState() ) ) {
-        input = StartGreen;
-      }
-    },
-    // This state has timeout
-    RED_TIME );
-
-  // State CALL active (with timeout)
-  stateMachine.SetOnState(CALL,
-    [](){
-      // Check if current state has timeouted, if yes go to next
-      if( stateMachine.GetTimeout( stateMachine.GetState() ) ) {
-        input = StartYellow;
-      }
-    },
-    CALL_DELAY );
+  stateMachine.AddTransition(GREEN, CALL, [](){return input == Input::StartCall;});
 }
