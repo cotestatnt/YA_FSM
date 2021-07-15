@@ -62,7 +62,10 @@ public:
 	uint8_t 	StateIndex() const;
 	uint32_t 	GetEnteringTime(uint8_t index);
 	void 		SetTimeout(uint8_t index, uint32_t preset); 
+	
+	[[deprecated("Replaced by Timeout()")]]
 	bool 		GetTimeout(uint8_t index);
+	bool 		Timeout(uint8_t index);
 	bool 		Update();	
 	FSM_State*	CurrentState();
 	FSM_State*  GetStateAt(uint8_t index);	
@@ -72,11 +75,17 @@ public:
 	}
 	
 	// only for compatibility with old version    
+	[[deprecated("Replaced by all in once method AddState()")]]
 	void 	SetOnEntering(uint8_t index, action_cb action);
+	[[deprecated("Replaced by Timeout()")]]
 	void 	SetOnLeaving(uint8_t index, action_cb action);
+	[[deprecated("Replaced by Timeout()")]]
 	void 	SetOnState(uint8_t index, action_cb action, uint32_t setTimeout = 0);	
+	[[deprecated("Replaced by all in once method AddState()")]]
 	void 	ClearOnEntering(uint8_t index);
+	[[deprecated("Replaced by all in once method AddState()")]]
 	void 	ClearOnLeaving(uint8_t index);
+	[[deprecated("Replaced by all in once method AddState()")]]
 	void 	ClearOnState(uint8_t index);
 	///////////////////////////////////////////////////////
 	

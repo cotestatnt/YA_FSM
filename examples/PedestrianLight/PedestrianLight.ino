@@ -85,7 +85,7 @@ void onStateGreen() {
 void onStateYellow() {
   setLight(yellow);
   // Check if current state has timeouted, if yes go to next  
-  if( stateMachine.GetTimeout(stateMachine.GetState()) ) {
+  if( stateMachine.CurrentState()->timeout ) {
     input = StartRed;
   }    
 }
@@ -93,14 +93,14 @@ void onStateYellow() {
 void onStateRed() {
   setLight(red);
   // Check if current state has timeouted, if yes go to next
-  if( stateMachine.GetTimeout(stateMachine.GetState()) ) {
+  if( stateMachine.CurrentState()->timeout ) {
     input = StartGreen;
   } 
 }
 
 void onStateCall() {
   // Check if current state has timeouted, if yes go to next
-  if( stateMachine.GetTimeout( stateMachine.GetState() ) ) {
+  if( stateMachine.CurrentState()->timeout ) {
     input = StartYellow;
   }
 }

@@ -136,6 +136,14 @@ bool YA_FSM::GetTimeout(uint8_t index){
 	return false;
 }
 
+bool YA_FSM::Timeout(uint8_t index){
+	FSM_State* state = GetStateAt(index);
+	if(state != nullptr ){
+		return state->timeout;
+	}
+	return false;
+}
+
 
 // Return current state entering time
 uint32_t YA_FSM::GetEnteringTime(uint8_t index) {

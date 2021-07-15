@@ -96,8 +96,7 @@ void onStateOpened() {
   digitalWrite(LED_OPEN, HIGH);
 
   // Wait WAIT_TIME millisends, then trigger for the next state
-  bool timeout = stateMachine.GetTimeout(currentState);
-  if (timeout) {
+  if ( stateMachine.CurrentState()->timeout ) {
     input = Input::xWAIT_DONE;
   }
 }
@@ -113,8 +112,7 @@ void onStateClosing() {
   }
 
   // Check if current state has timeouted,  then trigger for the next state
-  bool timeout = stateMachine.GetTimeout(currentState);
-  if (timeout) {
+  if ( stateMachine.CurrentState()->timeout ) {
     input = Input::xCLOSED;
   }
 }
@@ -132,8 +130,7 @@ void onStateOpening() {
 
   // After while, gate is opened.
   // Check if current state has timeouted, then trigger for the next state
-  bool timeout = stateMachine.GetTimeout(currentState);
-  if (timeout) {
+  if ( stateMachine.CurrentState()->timeout ) {
     input = Input::xOPENED;
   }
 }
@@ -144,8 +141,7 @@ void onStateStopWait() {
   digitalWrite(LED_CLOSE, LOW);
   digitalWrite(LED_OPEN, LOW);  
   // Check if current state has timeouted, then trigger for the next state
-  bool timeout = stateMachine.GetTimeout(currentState);
-  if (timeout) {
+  if ( stateMachine.CurrentState()->timeout ) {
     input = Input::xREOPEN;
   }  
 }
