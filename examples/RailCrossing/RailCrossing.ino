@@ -60,24 +60,6 @@ void loop() {
   }
 }
 
-/*
-// Interrupt service routine for SIG_TRAIN_IN signal
-void isrTrainComing() {
-  // Set the bool flag true
-  theTrainIsComing = true;
-  
-  // Reset enter time, so the timeout for GATE_WAIT (if active) is
-  // longer enough to wait two ore more trains one after the other 
-  stateMachine.SetEnteringTime(GATE_WAIT);
-}
-
-// Interrupt service routine for SIG_TRAIN_OUT signal
-void isrTrainGone() {
-  // Set the bool flag true
-  theTrainIsGone = true;
-}
-*/
-
 
 // Define "on entering" callback function (the same for all states)
 void onEnter(){ 
@@ -115,25 +97,6 @@ void onStateMoveOpen(){
   }
 }
 
-/*
-// Trigger input callback function for train coming
-bool triggerTrainComing() {
-  if(digitalRead(SIG_TRAIN_IN) == LOW) {
-    Serial.println(F("A new train is coming! Start closing the GATE."));
-    return true;
-  }
-  return false;
-}
-
-// Trigger input callback function for train gone
-bool triggerTrainGone() {
-  if(digitalRead(SIG_TRAIN_OUT) == LOW) {
-    Serial.println(F("The train has passed, wait a little and then GATE will be free again"));
-    return true;
-  }
-  return false;
-}
-*/
 
 // Setup the State Machine
 void setupStateMachine() {
