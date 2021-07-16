@@ -1,22 +1,23 @@
 
 # YA_FSM Library - YET ANOTHER FINITE STATE MACHINE
 
-The YA_FSM library implements a Petri net inspired state machine with defined states and transitions associated to callback functions.
+The YA_FSM library implements a **Finite State Machine** with pre-defined states and transitions associated to callback functions.
 
 
-This library is mainly inpired from https://github.com/luisllamasbinaburo/Arduino-StateMachine
+This library is mainly inpired from https://github.com/luisllamasbinaburo/Arduino-StateMachine but since the first versions it has come a long way and there are many more features.
 ___
 ### Introduction
 
-States represent the different situations in which the machine can be at any time. The transitions connect two states, one at the input and others at the output, and are associated with a trigger condition which carries out the change of state. Triggering can be performed with a bool function() or a global bool variable(check the examples included).
+States represent the different situations in which the machine can be at any time. The transitions connect two states, one at the input and others at the output, and are associated with a trigger condition which carries out the change of state. Triggering can be performed with a bool function() or a bool variable. Also the timeout of state itself (it is a bool) can be used for triggering to next state.
+If you take a look at the examples included, you will find some different way for triggering a transition.
 
-To update the states, you must frequently call the Update() function in your loop(), which checks for transitions that have the current state as input and associated conditions.
+To update the states, you must call the Update() function in your loop(), which checks for transitions that have the current state as input and associated conditions.
 
 If any of the transitions associated with the current state satisfy the trigger condition, the machine goes into the next state  defined in transition property.
 
 ![SFC example](/SFC_esempio.png)
 
-Each of the states of the machine can be associated with a callback function that will be executed when the state is activated (on entering), when it is left (on leaving) and while it is running (on state). For each status it is also possible to define a maximum duration time, at the end of which a timeout bit will be setted and can be tested with GetTimeout().
+Each of the states of the machine can be associated with a callback function that will be executed when the state is activated (on entering), when it is left (on leaving) and while it is running (on state). For each status it is also possible to define a maximum duration time, at the end of which a timeout bit will be setted and can be tested with Timeout() or directly from the actual state struct `FSM_State`. Also a minimum duration time can be setted for each state.
 
 To configure the machine according to your needs, define the states (better if you create enumerations for states and for triggers in order to make the usage and layout of FSM clearer) and the configure correctly the transitions between each state. 
 In the main loop call update() metod and that's it.
@@ -26,8 +27,6 @@ Start from the simplest Blinky https://github.com/cotestatnt/YA_FSM/blob/master/
 
 or a more advanced like classic algorithm for opening an automatic gate (simplified)
 https://github.com/cotestatnt/YA_FSM/blob/master/examples/AutomaticGate/AutomaticGate.ino
-
-
 
 
 ### Constructor
@@ -59,7 +58,8 @@ void SetTimeout(uint8_t index, uint32_t preset);
 
 // Check if a state is timeouted
 bool GetTimeout(uint8_t index);		// deprecated
-bool timeout(uint8_t index);		// More clear method name
+bool Timeout(uint8_t index);		// More clear method name
+stateMachine.CurrentState()->timeout	// Access directly to the value stored in FSM_State struct
 
 // Get the time (milliseconds) when state was activated
 uint32_t GetEnteringTime(uint8_t index) 
