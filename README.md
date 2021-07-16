@@ -3,8 +3,11 @@
 
 The YA_FSM library implements a **Finite State Machine** with pre-defined states and transitions associated to callback functions.
 
+This library try to reproduce the type of automation you can define with a SFC/Grapcet model. In the example folders you can find an image where the inspiring FSM model is represented with an SFC diagram 
 
-This library is mainly inpired from https://github.com/luisllamasbinaburo/Arduino-StateMachine but since the first versions it has come a long way and there are many more features.
+#### TO-DO: 
+Add method to handle **actions** defined for each state, at the moment demanded to callback functions
+
 ___
 ### Introduction
 
@@ -15,7 +18,8 @@ To update the states, you must call the Update() function in your loop(), which 
 
 If any of the transitions associated with the current state satisfy the trigger condition, the machine goes into the next state  defined in transition property.
 
-![SFC example](/SFC_esempio.png)
+![SFC_esempio](https://user-images.githubusercontent.com/27758688/125982036-0eab0bb2-ed13-4101-af5c-6e49e82908fd.png)
+
 
 Each of the states of the machine can be associated with a callback function that will be executed when the state is activated (on entering), when it is left (on leaving) and while it is running (on state). For each status it is also possible to define a maximum duration time, at the end of which a timeout bit will be setted and can be tested with Timeout() or directly from the actual state struct `FSM_State`. Also a minimum duration time can be setted for each state.
 
