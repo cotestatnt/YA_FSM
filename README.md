@@ -93,6 +93,7 @@ void ClearOnState(uint8_t index);
 ### Supported boards
 The library works virtually with every boards supported by Arduino framework (no hardware dependency)
 
++ 1.0.4 Examples simplified, bug fixes
 + 1.0.3 Added ActiveStateName() method and updated all examples with new style (addTransition() and addStep() )
 + 1.0.2 Bug fix
 + 1.0.1 Dinamic memory allocation for states and transitions
