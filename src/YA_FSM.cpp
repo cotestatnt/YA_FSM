@@ -199,13 +199,11 @@ bool YA_FSM::Update(){
 					_currentState->OnEntering();
 				return true;
 			}
-
-
 		}
-
-		if(_currentState->OnState != nullptr)
-			_currentState->OnState();
 	}
+    
+    if(_currentState->OnState != nullptr)
+        _currentState->OnState();
 	return false;
 }
 
