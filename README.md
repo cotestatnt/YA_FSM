@@ -1,7 +1,7 @@
 
-# YA_FSM Library - YET ANOTHER FINITE STATE MACHINE
+# YA_FSM Arduino Library - YET ANOTHER FINITE STATE MACHINE
 
-The YA_FSM library implements a **Finite State Machine** with pre-defined states and transitions associated to callback functions.
+The YA_FSM Arduino library implements a **Finite State Machine** with pre-defined states and transitions associated to callback functions.
 
 This library try to reproduce the type of automation you can define with a SFC/Grapcet model. In the example folders you can find an image where the inspiring FSM model is represented with an SFC diagram 
 
