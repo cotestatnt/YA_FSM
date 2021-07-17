@@ -5,22 +5,14 @@ The YA_FSM library implements a **Finite State Machine** with pre-defined states
 
 This library try to reproduce the type of automation you can define with a SFC/Grapcet model. In the example folders you can find an image where the inspiring FSM model is represented with an SFC diagram 
 
-#### TO-DO (partially done): 
+## TO-DO (partially done): 
 
 ~~Add method to handle **actions** defined for each state, at the moment demanded to callback functions~~ 
-
-Support for this action qualifiers:
-- 'N' Non stored action qualifier
-- 'S', 'R', Set e Reset action qualifier
-- 'L' Time Limited action qualifier
-- 'D' time delayed action qualifier
-
 
 ___
 ### Introduction
 
-States represent the different situations in which the machine can be at any time. The transitions connect two states, one at the input and others at the output, and are associated with a trigger condition which carries out the change of state. Triggering can be performed with a bool function() or a bool variable. Also the timeout of state itself (it is a bool) can be used for triggering to next state.
-If you take a look at the examples included, you will find some different way for triggering a transition.
+States represent the different situations in which the machine can be at any time. The transitions connect two states, one at the input and others at the output, and are associated with a trigger condition which carries out the change of state (if you take a look at the examples included, you will find some different way for triggering a transition).
 
 To update the states, you must call the Update() function in your loop(), which checks for transitions that have the current state as input and associated conditions.
 
@@ -28,11 +20,43 @@ If any of the transitions associated with the current state satisfy the trigger 
 
 ![SFC_esempio](https://user-images.githubusercontent.com/27758688/125982036-0eab0bb2-ed13-4101-af5c-6e49e82908fd.png)
 
+### State definition and Callback functions
+Each of the states of the machine can be associated with a callback function that will be executed when the state is activated (on entering), when it is left (on leaving) and while it is running (on state). For each status it is also possible to define a maximum and a minimum duration time.
 
-Each of the states of the machine can be associated with a callback function that will be executed when the state is activated (on entering), when it is left (on leaving) and while it is running (on state). For each status it is also possible to define a maximum duration time, at the end of which a timeout bit will be setted and can be tested with Timeout() or directly from the actual state struct `FSM_State`. Also a minimum duration time can be setted for each state.
+If a callback function is not needed, simply use value `nullptr` instead of the name of function.
+```
+stateMachine.AddState(STATE_LABEL, TIME_MAX, TIME_MIN, onEnterCB, onStateCB, onExitCB);
+stateMachine.AddState(STATE_LABEL, TIME_MAX, onEnterCB, onStateCB, onExitCB);
+```
 
-To configure the machine according to your needs, define the states (better if you create enumerations for states and for triggers in order to make the usage and layout of FSM clearer) and the configure correctly the transitions between each state. 
-In the main loop call update() metod and that's it.
+### Transition definition and trigger
+To connect two states, you need to define the transition. The trigger of transition can be performed with a bool function() or a bool variable. Also the timeout of state itself (it is a bool) can be used for triggering to next state. 
+
+In order to check if a specific state has timeout call method `Timeout(state_index)`. You can also check the value of `timeout` property.
+
+For example in this instruction is used a **lambda function** returning the value of timout for current state (FROM_STATE_INDEX) stored in the related struct of type [FSM_State](https://github.com/cotestatnt/YA_FSM/blob/master/src/YA_FSM.h#L15)
+
+` stateMachine.AddTransition(FROM_STATE_INDEX, TO_STATE_INDEX, [](){return stateMachine.CurrentState()->timeout;} );`
+
+### Action definition
+For each state you can define also a maximun of 64 qualified action, that will be execute when state is active causing effect to the target bool variable
+
+```
+bool targetVar;
+stateMachine.AddAction(STATE_INDEX, YA_FSM::N, &targetVar);
+```
+
+The library actually support this action qualifiers:
+
+| Action qualifier | Description | Short explanation on the effect | Duration |
+| :---: | :---: | :--- | :---: |
+| N | Non-stored | Action is active (target = TRUE) as long as the state input is active | - |
+| R | Reset | Reset to FALSE the value of target variable | - |
+| S | Set (or Stored) | Set to TRUE the value of target variable | - |
+| L | time Limited | target = TRUE until the end of the set time or until the state is deactivated  | X |
+| D | time Delayed | target = TRUE  after the set time has elapsed until the state is deactivated  | X |
+
+### Examples
 
 Take a look at the examples provided in the [examples folder](https://github.com/cotestatnt/YA_FSM/tree/master/examples).
 Start from the simplest Blinky https://github.com/cotestatnt/YA_FSM/blob/master/examples/Blinky/Blinky.ino
