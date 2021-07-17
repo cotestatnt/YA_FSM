@@ -43,26 +43,30 @@ For each state you can define also a maximun of 64 qualified action, that will b
 
 ```
 bool targetVar;
-stateMachine.AddAction(STATE_INDEX, YA_FSM::N, &targetVar);
+stateMachine.AddAction(STATE_INDEX, YA_FSM::N, targetVar);
 ```
 
 The library actually support this action qualifiers:
 
 | Action qualifier | Description | Short explanation on the effect | Duration |
 | :---: | :---: | :--- | :---: |
-| N | Non-stored | Action is active (target = TRUE) as long as the state input is active | - |
-| R | Reset | Reset to FALSE the value of target variable | - |
-| S | Set (or Stored) | Set to TRUE the value of target variable | - |
-| L | time Limited | target = TRUE until the end of the set time or until the state is deactivated  | X |
-| D | time Delayed | target = TRUE  after the set time has elapsed until the state is deactivated  | X |
+| N | Non-stored | Action is active (target = TRUE) as long as the state input is active | NO |
+| R | Reset | Reset to FALSE the value of target variable | NO |
+| S | Set (or Stored) | Set to TRUE the value of target variable | NO |
+| L | time Limited | target = TRUE until the end of the set time or until the state is deactivated  | YES |
+| D | time Delayed | target = TRUE  after the set time has elapsed until the state is deactivated  | YES |
 
 ### Examples
 
 Take a look at the examples provided in the [examples folder](https://github.com/cotestatnt/YA_FSM/tree/master/examples).
-Start from the simplest Blinky https://github.com/cotestatnt/YA_FSM/blob/master/examples/Blinky/Blinky.ino
+Start from the simplest [Blinky.ino](https://github.com/cotestatnt/YA_FSM/blob/master/examples/Blinky) or [PedestrianLight.ino](https://github.com/cotestatnt/YA_FSM/tree/master/examples/PedestrianLight)
 
-or a more advanced like classic algorithm for opening an automatic gate (simplified)
-https://github.com/cotestatnt/YA_FSM/blob/master/examples/AutomaticGate/AutomaticGate.ino
+
+or a more advanced like classic algorithm for opening an automatic gate (simplified) [AutomaticGate](https://github.com/cotestatnt/YA_FSM/blob/master/examples/AutomaticGate) or rail crossing [RailCRossing.ino](https://github.com/cotestatnt/YA_FSM/blob/master/examples/RailCrossing)
+
+
+![AutomaticGate](https://user-images.githubusercontent.com/27758688/125979422-31ad3912-eb93-406f-9b41-6f32c30b02ba.png )
+
 
 
 ### Constructor
@@ -109,7 +113,7 @@ void AddTransition(uint8_t inputState, uint8_t outputState, bool condition);
 
 // Set up and action for a specific state (supported qualifiers N, S, R, D, L
 // More actions can be added to the same state (actaully limited by #define MAX_ACTIONS 64)
-uint8_t AddAction(uint8_t inputState, uint8_t type, bool *target, uint32_t _time=0);
+uint8_t AddAction(uint8_t inputState, uint8_t type, bool &target, uint32_t _time=0);
 
 // Set up a state with properties and callback function
 uint8_t AddState(const char* name, uint32_t maxTime, uint32_t minTime,	action_cb onEntering, action_cb onState, action_cb onLeaving);
