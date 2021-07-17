@@ -64,9 +64,10 @@ Start from the simplest [Blinky.ino](https://github.com/cotestatnt/YA_FSM/blob/m
 
 or a more advanced like classic algorithm for opening an automatic gate (simplified) [AutomaticGate](https://github.com/cotestatnt/YA_FSM/blob/master/examples/AutomaticGate) or rail crossing [RailCRossing.ino](https://github.com/cotestatnt/YA_FSM/blob/master/examples/RailCrossing)
 
-
-![AutomaticGate](https://user-images.githubusercontent.com/27758688/125979422-31ad3912-eb93-406f-9b41-6f32c30b02ba.png )
-
+<div style="content: flex">
+<img src="https://user-images.githubusercontent.com/27758688/125971825-ed89b51d-6441-474b-86a5-063bc1f96770.png" width="480">
+<img src="https://user-images.githubusercontent.com/27758688/125979422-31ad3912-eb93-406f-9b41-6f32c30b02ba.png" width="450">
+</div>
 
 
 ### Constructor
