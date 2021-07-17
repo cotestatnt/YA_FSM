@@ -5,8 +5,16 @@ The YA_FSM library implements a **Finite State Machine** with pre-defined states
 
 This library try to reproduce the type of automation you can define with a SFC/Grapcet model. In the example folders you can find an image where the inspiring FSM model is represented with an SFC diagram 
 
-#### TO-DO: 
-Add method to handle **actions** defined for each state, at the moment demanded to callback functions
+#### TO-DO (partially done): 
+
+~~Add method to handle **actions** defined for each state, at the moment demanded to callback functions~~ 
+
+Support for this action qualifiers:
+- 'N' Non stored action qualifier
+- 'S', 'R', Set e Reset action qualifier
+- 'L' Time Limited action qualifier
+- 'D' time delayed action qualifier
+
 
 ___
 ### Introduction
