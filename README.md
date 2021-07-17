@@ -83,6 +83,10 @@ bool Update();
 void AddTransition(uint8_t inputState, uint8_t outputState, condition_cb condition);
 void AddTransition(uint8_t inputState, uint8_t outputState, bool condition);
 
+// Set up and action for a specific state (supported qualifiers N, S, R, D, L
+// More actions can be added to the same state (actaully limited by #define MAX_ACTIONS 64)
+uint8_t AddAction(uint8_t inputState, uint8_t type, bool *target, uint32_t _time=0);
+
 // Set up a state with properties and callback function
 uint8_t AddState(const char* name, uint32_t maxTime, uint32_t minTime,	action_cb onEntering, action_cb onState, action_cb onLeaving);
 uint8_t AddState(const char* name, uint32_t maxTime, action_cb onEntering, action_cb onState, action_cb onLeaving);
@@ -101,6 +105,7 @@ void ClearOnState(uint8_t index);
 ### Supported boards
 The library works virtually with every boards supported by Arduino framework (no hardware dependency)
 
++ 1.0.5 Added support for Action Qualifiers N, S, R, D, L  (pedestrainLight example updated with this method)
 + 1.0.4 Examples simplified, bug fixes
 + 1.0.3 Added ActiveStateName() method and updated all examples with new style (addTransition() and addStep() )
 + 1.0.2 Bug fix
