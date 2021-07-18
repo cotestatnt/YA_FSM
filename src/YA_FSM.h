@@ -6,20 +6,20 @@
 #ifndef YA_FSM_H
 #define YA_FSM_H
 #include "Arduino.h"
-//#include <functional>
 
-#define MAX_ACTIONS 64
 
 typedef bool(*condition_cb)();
 typedef void(*action_cb)();
 
 struct FSM_Action{
-	//uint8_t 		State;			// Action valid for state defined
-	int32_t         xTime = -1;	    // Last call time of Action (-1 not called)
 	bool			xEdge = false;
-	uint32_t 		Delay;			// For L - limited time and D - delayed actions
 	uint8_t 		Type;			// The type of action  { 'N', 'S', 'R', 'L', 'D'};
+	uint8_t 		StateIndex;	    // Action valid for state defined
+	int32_t         lTime = -1;	    // Last call time of Action (-1 not called)
+	uint32_t 		Delay;			// For L - limited time and D - delayed actions
+
 	bool *			Target; 		// The variable wich is affected by action
+	FSM_Action*		nextAction = nullptr;
 } ;
 
 struct FSM_Transition{
@@ -27,7 +27,7 @@ struct FSM_Transition{
 	uint8_t 		OutputState;
 	condition_cb 	Condition;
 	bool   			*ConditionVar;
-	FSM_Transition	*nextTransition;
+	FSM_Transition	*nextTransition = nullptr;
 } ;
 
 struct FSM_State {
@@ -40,13 +40,8 @@ struct FSM_State {
 	action_cb 	OnLeaving;
 	action_cb 	OnState;
 	const char 	*stateName;
-	FSM_State	*nextState;
-
-	// TO-DO // Dinamic allocation for new actions
-	//FSM_Action  *action;
-
-	FSM_Action* actions[MAX_ACTIONS];
-	uint8_t     lastActionIndex = 0;
+	FSM_State	*nextState = nullptr;
+	FSM_Action  *lastAction = nullptr;
 } ;
 
 
@@ -126,10 +121,12 @@ private:
 	FSM_Transition	*_lastTransition = nullptr;
 
 	// Action handling
-	// uint8_t 		_currentActionIndex;
-	// FSM_Action	*_firstAction = nullptr;
-	// FSM_Action	*_lastAction = nullptr;
-	void executeAction(FSM_State *state, uint8_t actIndex, bool onExit = false);
+	uint8_t 		_currentActionIndex;
+	FSM_Action		*_firstAction = nullptr;
+	FSM_Action		*_lastAction = nullptr;
+	//void executeAction(FSM_State *state, uint8_t actIndex, bool onExit = false);
+
+	void executeAction(FSM_State* state, FSM_Action *action, bool onExit = false);
 
 	// only for compatibility with old version
 	void 			initVariables();

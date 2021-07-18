@@ -6,7 +6,6 @@ FSM_State*  YA_FSM::CurrentState(){
 }
 
 
-
 FSM_State*  YA_FSM::GetStateAt(uint8_t index){
 	for(FSM_State* state = _firstState; state != nullptr; state = state->nextState)
 		if(state->index == index )
@@ -36,7 +35,7 @@ uint8_t YA_FSM::AddState(const char* name, uint32_t maxTime, uint32_t minTime,
 	state->maxTime = maxTime;
 	state->minTime = minTime;
 	state->index = _stateIndex;
-	state->actions[0] = nullptr;
+	//state->actions[0] = nullptr;
 	return _stateIndex;
 }
 
@@ -87,18 +86,25 @@ uint8_t YA_FSM::AddAction(uint8_t inputState, uint8_t type, bool &target, uint32
 
     // Create new action object and assign values
     FSM_Action *newAction = new FSM_Action();
+		if (_firstAction == nullptr)
+		_firstAction = newAction;
+	else
+		_lastAction->nextAction = newAction;
+	_lastAction = newAction;
+
+	newAction->StateIndex = inputState;
 	newAction->Type = type;
 	newAction->Target = &target;
 	newAction->Delay = _time;
 
-    // Get the target state
+    // Set lastAction to the target state (in order to know, is one or more action are to be runned on state)
 	FSM_State* state = GetStateAt(inputState);
+    state->lastAction = newAction;
 
-    state->actions[state->lastActionIndex++] = newAction;
-	return 0;
+	return _currentActionIndex++;
 }
 
-
+/*
 void YA_FSM::executeAction(FSM_State* state, uint8_t actIndex, bool onExit) {
     bool * target = state->actions[actIndex]->Target;
 
@@ -118,20 +124,20 @@ void YA_FSM::executeAction(FSM_State* state, uint8_t actIndex, bool onExit) {
 		{
             if(onExit) {
                 *target = false;
-                state->actions[actIndex]->xEdge = false;
-				state->actions[actIndex]->xTime = -1;
+                state->actions[actIndex]->lTime = false;
+				state->actions[actIndex]->lTime = -1;
                 break;
             }
 
 			if( !state->actions[actIndex]->xEdge) {
 				*target = true;
-				state->actions[actIndex]->xTime = millis();
+				state->actions[actIndex]->lTime = millis();
                 state->actions[actIndex]->xEdge = true;
 			}
 
-			if( (millis() -  state->actions[actIndex]->xTime) > state->actions[actIndex]->Delay
+			if( (millis() -  state->actions[actIndex]->lTime) > state->actions[actIndex]->Delay
 				&& state->actions[actIndex]->xEdge
-				&& state->actions[actIndex]->xTime > 0 )
+				&& state->actions[actIndex]->lTime > 0 )
 			{
 				*target = false;
 			}
@@ -142,28 +148,93 @@ void YA_FSM::executeAction(FSM_State* state, uint8_t actIndex, bool onExit) {
             if(onExit) {
                 *target = false;
                 state->actions[actIndex]->xEdge = false;
-				state->actions[actIndex]->xTime = -1;
+				state->actions[actIndex]->lTime = -1;
                 break;
             }
 
 			if( !state->actions[actIndex]->xEdge) {
-				state->actions[actIndex]->xTime = millis();
+				state->actions[actIndex]->lTime = millis();
                 state->actions[actIndex]->xEdge = true;
 			}
 
-			if( (millis() -  state->actions[actIndex]->xTime) > state->actions[actIndex]->Delay
+			if( (millis() -  state->actions[actIndex]->lTime) > state->actions[actIndex]->Delay
 				&& state->actions[actIndex]->xEdge
-				&& state->actions[actIndex]->xTime > 0 )
+				&& state->actions[actIndex]->lTime > 0 )
 			{
 				*target = true;
-				state->actions[actIndex]->xTime = -1;		// Action executed
+				state->actions[actIndex]->lTime = -1;		// Action executed
 			}
 			break;
 		}
 
 	}
 }
+*/
 
+void YA_FSM::executeAction(FSM_State* state, FSM_Action* action,  bool onExit) {
+	bool * target = action->Target;
+
+	switch(action->Type) {
+		case YA_FSM::S :
+			*target = true;
+			break;
+		case YA_FSM::R :
+			*target = false;
+			break;
+		case YA_FSM::N :
+            if(onExit) { *target = false;  break; }
+
+			*target = (_currentState->index == state->index);
+			break;
+		case YA_FSM::L :		// Time Limited action
+		{
+            if(onExit) {
+                *target = false;
+                action->xEdge = false;
+				action->lTime = -1;
+                break;
+            }
+
+			if( !action->xEdge) {
+				*target = true;
+				action->lTime = millis();
+                action->xEdge = true;
+			}
+
+			if( (millis() - action->lTime) > action->Delay
+				&& action->xEdge
+				&& action->lTime > 0 )
+			{
+				*target = false;
+			}
+			break;
+		}
+		case YA_FSM::D :		// Time Delayed action
+		{
+            if(onExit) {
+                *target = false;
+                action->xEdge = false;
+				action->lTime = -1;
+                break;
+            }
+
+			if( !action->xEdge) {
+				action->lTime = millis();
+                action->xEdge = true;
+			}
+
+			if( (millis() - action->lTime) > action->Delay
+				&&action->xEdge
+				&& action->lTime > 0 )
+			{
+				*target = true;
+				action->lTime = -1;		// Action executed
+			}
+			break;
+		}
+
+	}
+}
 
 
 bool YA_FSM::Update(){
@@ -199,9 +270,13 @@ bool YA_FSM::Update(){
 					_currentState->OnLeaving();
 
                 // Call the actions on exit previuos state to clear target if necessary
-                for(uint8_t i =0; i < _currentState->lastActionIndex; i++) {
-                    executeAction(_currentState, i, true);
-                }
+				if( _currentState->lastAction != nullptr) {
+					for(FSM_Action* actualAct = _firstAction; actualAct != nullptr; actualAct = actualAct->nextAction) {
+						if(actualAct->StateIndex == _currentState->index){
+							executeAction(_currentState, actualAct, true);
+						}
+					}
+				}
 
 				FSM_State* targetState = GetStateAt(actualtr->OutputState);
 				_currentState = targetState;
@@ -218,9 +293,14 @@ bool YA_FSM::Update(){
 	if(_currentState->OnState != nullptr)
 			_currentState->OnState();
 
-    for(uint8_t i =0; i < _currentState->lastActionIndex; i++) {
-        executeAction(_currentState, i);
-    }
+	// Run actions (if defined) for current state
+	if( _currentState->lastAction != nullptr) {
+		for(FSM_Action* actualAct = _firstAction; actualAct != nullptr; actualAct = actualAct->nextAction) {
+			if(actualAct->StateIndex == _currentState->index){
+				executeAction(_currentState, actualAct, false);
+			}
+		}
+	}
 	return false;
 }
 
