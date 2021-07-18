@@ -13,10 +13,6 @@ const byte YELLOW_LED = PA6;
 const byte RED_LED = PA7;
 */
 
-bool green[] = {1, 0, 0 };
-bool yellow[] = {0, 1, 0 };
-bool red[] = {0, 0, 1 };
-
 // Create new FSM
 YA_FSM stateMachine;
 
