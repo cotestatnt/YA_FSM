@@ -14,6 +14,9 @@ typedef bool(*condition_cb)();
 typedef void(*action_cb)();
 
 struct FSM_Action{
+	//uint8_t 		State;			// Action valid for state defined
+	int32_t         xTime = -1;	    // Last call time of Action (-1 not called)
+	bool			xEdge = false;
 	uint32_t 		Delay;			// For L - limited time and D - delayed actions
 	uint8_t 		Type;			// The type of action  { 'N', 'S', 'R', 'L', 'D'};
 	bool *			Target; 		// The variable wich is affected by action
@@ -117,10 +120,15 @@ private:
 	FSM_State 		*_firstState = nullptr;
 	FSM_State 		*_lastState = nullptr;
 
+	// Transition handling
 	uint8_t 		_currentTransitionIndex;
 	FSM_Transition	*_firstTransition = nullptr;
 	FSM_Transition	*_lastTransition = nullptr;
 
+	// Action handling
+	// uint8_t 		_currentActionIndex;
+	// FSM_Action	*_firstAction = nullptr;
+	// FSM_Action	*_lastAction = nullptr;
 	void executeAction(FSM_State *state, uint8_t actIndex, bool onExit = false);
 
 	// only for compatibility with old version

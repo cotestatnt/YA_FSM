@@ -80,7 +80,6 @@ uint8_t YA_FSM::AddTransition(uint8_t inputState, uint8_t outputState, bool &con
 	transition->OutputState = outputState;
 
 	return _currentTransitionIndex++;
-
 }
 
 
@@ -96,32 +95,14 @@ uint8_t YA_FSM::AddAction(uint8_t inputState, uint8_t type, bool &target, uint32
 	FSM_State* state = GetStateAt(inputState);
 
     state->actions[state->lastActionIndex++] = newAction;
-
-    // // If first action in list
-    // if (state->action == nullptr) {
-	// 	state->action = newAction;
-    //     state->action->nextAction = nullptr;
-    // }
-	// else {
-    //     //state->action->nextAction = action;        // Skip already defined action for this state
-    //     volatile FSM_Action* _action = state->action->nextAction;
-    //     while ( _action != nullptr) {
-    //         _action = _action->nextAction;
-    //     };
-    //     _action = newAction;
-    // }
 	return 0;
 }
 
 
 void YA_FSM::executeAction(FSM_State* state, uint8_t actIndex, bool onExit) {
-	static uint32_t actionTime;
-
     bool * target = state->actions[actIndex]->Target;
-    uint8_t actType = state->actions[actIndex]->Type;
 
-
-	switch(actType) {
+	switch(state->actions[actIndex]->Type) {
 		case YA_FSM::S :
 			*target = true;
 			break;
@@ -133,44 +114,49 @@ void YA_FSM::executeAction(FSM_State* state, uint8_t actIndex, bool onExit) {
 
 			*target = (_currentState->index == state->index);
 			break;
-		case YA_FSM::L : {
-            static uint32_t actTime = state->actions[actIndex]->Delay;
-            static bool edge = false;
-
+		case YA_FSM::L :		// Time Limited action
+		{
             if(onExit) {
                 *target = false;
-                edge = false;
+                state->actions[actIndex]->xEdge = false;
+				state->actions[actIndex]->xTime = -1;
                 break;
             }
 
-			if( !edge) {
+			if( !state->actions[actIndex]->xEdge) {
 				*target = true;
-				actionTime = millis();
-                edge = true;
+				state->actions[actIndex]->xTime = millis();
+                state->actions[actIndex]->xEdge = true;
 			}
 
-			if(millis() - actionTime > actTime && edge) {
+			if( (millis() -  state->actions[actIndex]->xTime) > state->actions[actIndex]->Delay
+				&& state->actions[actIndex]->xEdge
+				&& state->actions[actIndex]->xTime > 0 )
+			{
 				*target = false;
 			}
 			break;
 		}
-		case YA_FSM::D : {
-            static uint32_t actTime = state->actions[actIndex]->Delay;
-            static bool edge = false;
+		case YA_FSM::D :		// Time Delayed action
+		{
             if(onExit) {
                 *target = false;
-                edge = false;
+                state->actions[actIndex]->xEdge = false;
+				state->actions[actIndex]->xTime = -1;
                 break;
             }
 
-			if( !edge) {
-				actionTime = millis();
-                edge = true;
+			if( !state->actions[actIndex]->xEdge) {
+				state->actions[actIndex]->xTime = millis();
+                state->actions[actIndex]->xEdge = true;
 			}
 
-			if(millis() - actionTime > actTime && edge) {
+			if( (millis() -  state->actions[actIndex]->xTime) > state->actions[actIndex]->Delay
+				&& state->actions[actIndex]->xEdge
+				&& state->actions[actIndex]->xTime > 0 )
+			{
 				*target = true;
-                edge = false;
+				state->actions[actIndex]->xTime = -1;		// Action executed
 			}
 			break;
 		}
@@ -216,9 +202,6 @@ bool YA_FSM::Update(){
                 for(uint8_t i =0; i < _currentState->lastActionIndex; i++) {
                     executeAction(_currentState, i, true);
                 }
-                // for(FSM_Action* _action = _currentState->action; _action != nullptr; _action = _action->nextAction) {
-                //     executeAction(_currentState, _action, true);
-                // }
 
 				FSM_State* targetState = GetStateAt(actualtr->OutputState);
 				_currentState = targetState;
@@ -234,13 +217,6 @@ bool YA_FSM::Update(){
 	}
 	if(_currentState->OnState != nullptr)
 			_currentState->OnState();
-
-	// if(_currentState->action != nullptr) {
-    //     // Run all defined actions for current state
-    //     for(FSM_Action* _action = _currentState->action; _action != nullptr; _action = _action->nextAction) {
-    //         executeAction(_currentState, _action);
-    //     }
-	// }
 
     for(uint8_t i =0; i < _currentState->lastActionIndex; i++) {
         executeAction(_currentState, i);
