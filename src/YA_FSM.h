@@ -1,6 +1,6 @@
 
 /*
-  Cotesta Tolentino, 2020.  
+  Cotesta Tolentino, 2020.
   Released into the public domain.
 */
 #ifndef YA_FSM_H
@@ -8,21 +8,15 @@
 #include "Arduino.h"
 //#include <functional>
 
+#define MAX_ACTIONS 64
 
 typedef bool(*condition_cb)();
 typedef void(*action_cb)();
 
-struct FSM_State {		
-	uint8_t 	index = 0;
-	bool 		timeout = false;
-	uint32_t 	maxTime = 0;	// 0 -> No timeout
-	uint32_t 	minTime = 0;	// 0 -> No min time
-	uint32_t 	enterTime;		
-	action_cb 	OnEntering;
-	action_cb 	OnLeaving;
-	action_cb 	OnState;			
-	const char 	*stateName;
-	FSM_State	*nextState;
+struct FSM_Action{
+	uint32_t 		Delay;			// For L - limited time and D - delayed actions
+	uint8_t 		Type;			// The type of action  { 'N', 'S', 'R', 'L', 'D'};
+	bool *			Target; 		// The variable wich is affected by action
 } ;
 
 struct FSM_Transition{
@@ -33,54 +27,81 @@ struct FSM_Transition{
 	FSM_Transition	*nextTransition;
 } ;
 
+struct FSM_State {
+	uint8_t 	index = 0;
+	bool 		timeout = false;
+	uint32_t 	maxTime = 0;	// 0 -> No timeout
+	uint32_t 	minTime = 0;	// 0 -> No min time
+	uint32_t 	enterTime;
+	action_cb 	OnEntering;
+	action_cb 	OnLeaving;
+	action_cb 	OnState;
+	const char 	*stateName;
+	FSM_State	*nextState;
+
+	// TO-DO // Dinamic allocation for new actions
+	//FSM_Action  *action;
+
+	FSM_Action* actions[MAX_ACTIONS];
+	uint8_t     lastActionIndex = 0;
+} ;
+
 
 class YA_FSM
 {
 	//using action_cb = std::function<void()>;
 	//using condition_cb = std::function<bool()>;
 
-	
-	
 public:
 	// Default constructor
 	YA_FSM() {};
-	
-	// For compatibility with old version 
-	explicit YA_FSM (uint8_t st, uint8_t tr) 
+
+	// For compatibility with old version
+	explicit YA_FSM (uint8_t st, uint8_t tr)
 	: _numStates(st), _numTransitions(tr)  {
-		initVariables();	
+		initVariables();
 	};
-	
+
+	enum ActionsType { N, S, R, L, D};
+
+	uint8_t 	AddState(const char* name,
+				 	action_cb onEntering, action_cb onState, action_cb onLeaving);
+
 	uint8_t 	AddState(const char* name, uint32_t maxTime, uint32_t minTime,
 				 	action_cb onEntering, action_cb onState, action_cb onLeaving);
 	uint8_t 	AddState(const char* name, uint32_t maxTime,
 				 	action_cb onEntering, action_cb onState, action_cb onLeaving);
 
-	uint8_t 	AddTransition(uint8_t inputState, uint8_t outputState, condition_cb condition);	
+	uint8_t 	AddTransition(uint8_t inputState, uint8_t outputState, condition_cb condition);
 	uint8_t 	AddTransition(uint8_t inputState, uint8_t outputState, bool &condition);
+
+	uint8_t 	AddAction(uint8_t inputState, uint8_t type, bool &target, uint32_t _time=0);
 	uint8_t 	GetState() const;
 	uint8_t 	StateIndex() const;
 	uint32_t 	GetEnteringTime(uint8_t index);
-	void 		SetTimeout(uint8_t index, uint32_t preset); 
-	
+
+	// Useful for reset the beginning of state (-1 on error)
+	int32_t 	SetEnteringTime(uint8_t index);
+	void 		SetTimeout(uint8_t index, uint32_t preset);
+
 	[[deprecated("Replaced by Timeout()")]]
 	bool 		GetTimeout(uint8_t index);
 	bool 		Timeout(uint8_t index);
-	bool 		Update();	
+	bool 		Update();
 	FSM_State*	CurrentState();
-	FSM_State*  GetStateAt(uint8_t index);	
-	
+	FSM_State*  GetStateAt(uint8_t index);
+
 	inline const char* ActiveStateName() {
 		return _currentState->stateName;
 	}
-	
-	// only for compatibility with old version    
+
+	// only for compatibility with old version
 	[[deprecated("Replaced by all in once method AddState()")]]
 	void 	SetOnEntering(uint8_t index, action_cb action);
 	[[deprecated("Replaced by Timeout()")]]
 	void 	SetOnLeaving(uint8_t index, action_cb action);
 	[[deprecated("Replaced by Timeout()")]]
-	void 	SetOnState(uint8_t index, action_cb action, uint32_t setTimeout = 0);	
+	void 	SetOnState(uint8_t index, action_cb action, uint32_t setTimeout = 0);
 	[[deprecated("Replaced by all in once method AddState()")]]
 	void 	ClearOnEntering(uint8_t index);
 	[[deprecated("Replaced by all in once method AddState()")]]
@@ -88,7 +109,7 @@ public:
 	[[deprecated("Replaced by all in once method AddState()")]]
 	void 	ClearOnState(uint8_t index);
 	///////////////////////////////////////////////////////
-	
+
 private:
 	uint8_t 		_stateIndex;
 	FSM_State 		*_oldState = nullptr;
@@ -96,14 +117,16 @@ private:
 	FSM_State 		*_firstState = nullptr;
 	FSM_State 		*_lastState = nullptr;
 
-	uint8_t 		_currentTransitionIndex;	
+	uint8_t 		_currentTransitionIndex;
 	FSM_Transition	*_firstTransition = nullptr;
 	FSM_Transition	*_lastTransition = nullptr;
+
+	void executeAction(FSM_State *state, uint8_t actIndex, bool onExit = false);
 
 	// only for compatibility with old version
 	void 			initVariables();
 	uint8_t 		_numStates;
-	uint8_t 		_numTransitions;		
+	uint8_t 		_numTransitions;
 	///////////////////////////////////////////
 };
 
