@@ -1,4 +1,4 @@
-#include <YA_FSM.h>
+#include <YA_FSM.h>  // https://github.com/cotestatnt/YA_FSM
 
 const byte BTN_CALL = 2;
 const byte GREEN_LED = 12;
@@ -38,7 +38,7 @@ void onExit() {
   Serial.print(stateMachine.ActiveStateName());
   Serial.println(F(" light OFF\n"));
 }
-
+// Define "on enter" for CALL button state
 void onEnterCall() {
   Serial.println(F("Call registered, please wait a little time.")); 
 }
@@ -59,20 +59,22 @@ void setupStateMachine() {
   stateMachine.AddAction(YELLOW, YA_FSM::N, yellowLed);  // N -> while state is active yellow led is ON
 
   // Add transitions with related trigger input callback functions
-  stateMachine.AddTransition(RED, GREEN, [](){return stateMachine.CurrentState()->timeout;} );
+  // In this example it's just a simple lambda function that return state timeout value
+  stateMachine.AddTransition(RED, GREEN, [](){return stateMachine.CurrentState()->timeout;} );    
   stateMachine.AddTransition(YELLOW, RED, [](){return stateMachine.CurrentState()->timeout;}  );
   stateMachine.AddTransition(CALL, YELLOW, [](){return stateMachine.CurrentState()->timeout;});
   stateMachine.AddTransition(GREEN, CALL, callButton);
 }
 
 void setup() {
+  // Setup Input/Output
   pinMode(BTN_CALL, INPUT_PULLUP);
   pinMode(GREEN_LED, OUTPUT);
   pinMode(YELLOW_LED, OUTPUT);
   pinMode(RED_LED, OUTPUT);
   
   Serial.begin(115200);
-  while(!Serial) {}
+  while(!Serial) {}  // Needed for native USB port only
   Serial.println(F("Starting the Finite State Machine...\n"));
   setupStateMachine();
 }
