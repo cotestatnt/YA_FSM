@@ -94,6 +94,10 @@ FSM_State*  GetStateAt(uint8_t index);
 // Get active state name
 const char* ActiveStateName();
 
+// Set machine to state at index. Will call every function as expected unless told otherwise
+// If is the same state as the current, it should call onEntering and onLeaving and Refresh Timeout
+void SetState (uint8_t index, bool callOnEntering = true, bool callOnLeaving = true)
+  
 // Set or modify a state timeout (preset = milliseconds)
 void SetTimeout(uint8_t index, uint32_t preset);
 
