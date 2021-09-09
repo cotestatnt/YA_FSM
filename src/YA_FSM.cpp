@@ -315,7 +315,7 @@ uint8_t YA_FSM::GetState() const{
 }
 
 // Change to State
-void YA_FSM::SetState(uint8_t index, bool callOnEntering = true, bool callOnLeaving = true) {
+void YA_FSM::SetState(uint8_t index, bool callOnEntering, bool callOnLeaving) {
 	FSM_State* newState = GetStateAt(index);
 	// If found state at index
 	if(newState != nullptr ) {
