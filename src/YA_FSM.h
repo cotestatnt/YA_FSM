@@ -75,6 +75,7 @@ public:
 
 	uint8_t 	AddAction(uint8_t inputState, uint8_t type, bool &target, uint32_t _time=0);
 	uint8_t 	GetState() const;
+	void 		SetState(uint8_t index, bool callOnEntering = true, bool callOnLeaving = true);
 	uint8_t 	StateIndex() const;
 	uint32_t 	GetEnteringTime(uint8_t index);
 

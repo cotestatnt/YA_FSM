@@ -314,6 +314,27 @@ uint8_t YA_FSM::GetState() const{
 	return _currentState->index;
 }
 
+// Change to State
+void YA_FSM::SetState(uint8_t index, bool callOnEntering, bool callOnLeaving) {
+	FSM_State* newState = GetStateAt(index);
+	// If found state at index
+	if(newState != nullptr ) {
+		// Guarantee that will run OnLeaving()
+		if(_currentState->OnLeaving != nullptr && callOnLeaving)
+			_currentState->OnLeaving();
+
+		_currentState = newState;
+
+		// Guarantee that will run OnEntering()
+		if(_currentState->OnEntering != nullptr && callOnEntering)
+			_currentState->OnEntering();
+
+		// Update Enter Time
+		_currentState->enterTime = millis();
+		_currentState->timeout = false;
+	}
+}
+
 void YA_FSM::SetTimeout(uint8_t index, uint32_t preset) {
 	FSM_State* state = GetStateAt(index);
 	if(state != nullptr ){
