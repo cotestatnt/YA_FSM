@@ -27,6 +27,7 @@ struct FSM_Transition{
 	uint8_t 		OutputState;
 	condition_cb 	Condition;
 	bool   			*ConditionVar;
+	bool			TimedTransition = false;
 	FSM_Transition	*nextTransition = nullptr;
 } ;
 
@@ -72,6 +73,7 @@ public:
 
 	uint8_t 	AddTransition(uint8_t inputState, uint8_t outputState, condition_cb condition);
 	uint8_t 	AddTransition(uint8_t inputState, uint8_t outputState, bool &condition);
+	uint8_t		AddTimedTransition(uint8_t inputState, uint8_t outputState);
 
 	uint8_t 	AddAction(uint8_t inputState, uint8_t type, bool &target, uint32_t _time=0);
 	uint8_t 	GetState() const;

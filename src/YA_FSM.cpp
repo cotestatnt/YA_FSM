@@ -81,6 +81,21 @@ uint8_t YA_FSM::AddTransition(uint8_t inputState, uint8_t outputState, bool &con
 	return _currentTransitionIndex++;
 }
 
+uint8_t	YA_FSM::AddTimedTransition(uint8_t inputState, uint8_t outputState){
+	FSM_Transition *transition = new FSM_Transition();
+	if (_firstTransition == nullptr)
+		_firstTransition = transition;
+	else
+		_lastTransition->nextTransition = transition;
+	_lastTransition = transition;
+
+	transition->TimedTransition = true;
+	transition->InputState = inputState;
+	transition->OutputState = outputState;
+
+	return _currentTransitionIndex++;
+}
+
 
 uint8_t YA_FSM::AddAction(uint8_t inputState, uint8_t type, bool &target, uint32_t _time) {
 
@@ -253,6 +268,8 @@ bool YA_FSM::Update(){
 			bool _trigger = false;
 			if(actualtr->Condition == nullptr)
 				_trigger = *(actualtr->ConditionVar);
+			else if (actualtr->TimedTransition == true)
+				_trigger = _currentState->timeout;
 			else
 				_trigger = actualtr->Condition();
 
