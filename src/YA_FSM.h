@@ -25,7 +25,7 @@ struct FSM_Action{
 struct FSM_Transition{
 	uint8_t 		InputState;
 	uint8_t 		OutputState;
-	condition_cb 	Condition;
+	condition_cb 	Condition = nullptr;
 	bool   			*ConditionVar;
 	bool			TimedTransition = false;
 	FSM_Transition	*nextTransition = nullptr;

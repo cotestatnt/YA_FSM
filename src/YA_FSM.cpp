@@ -1,6 +1,5 @@
 #include "YA_FSM.h"
 
-
 FSM_State*  YA_FSM::CurrentState(){
 	return _currentState;
 }
@@ -266,10 +265,10 @@ bool YA_FSM::Update(){
 			}
 
 			bool _trigger = false;
-			if(actualtr->Condition == nullptr)
-				_trigger = *(actualtr->ConditionVar);
-			else if (actualtr->TimedTransition == true)
+			if (actualtr->TimedTransition == true)
 				_trigger = _currentState->timeout;
+			else if(actualtr->Condition == nullptr)
+				_trigger = *(actualtr->ConditionVar);
 			else
 				_trigger = actualtr->Condition();
 

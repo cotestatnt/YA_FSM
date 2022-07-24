@@ -30,13 +30,11 @@ stateMachine.AddState(STATE_LABEL, TIME_MAX, onEnterCB, onStateCB, onExitCB);
 ```
 
 ### Transition definition and trigger
-To connect two states, you need to define the transition. The trigger of transition can be performed with a bool function() or a bool variable. Also the timeout of state itself (it is a bool) can be used for triggering to next state. 
+To connect two states, you need to define the transition. The trigger of transition can be performed with a bool function(), a bool variable, or the timeout of the state itself.
 
-In order to check if a specific state has timeout call method `Timeout(state_index)`. You can also check the value of `timeout` property.
+In order to check if a specific state has exceeded its timeout, use the `AddTimedTransition()` method, which checks the `CurrentState()->timeout` bool property stored in the related struct of type [FSM_State](https://github.com/cotestatnt/YA_FSM/blob/master/src/YA_FSM.h#L15)
 
-For example in this instruction is used a **lambda function** returning the value of timout for current state (FROM_STATE_INDEX) stored in the related struct of type [FSM_State](https://github.com/cotestatnt/YA_FSM/blob/master/src/YA_FSM.h#L15)
-
-` stateMachine.AddTransition(FROM_STATE_INDEX, TO_STATE_INDEX, [](){return stateMachine.CurrentState()->timeout;} );`
+` stateMachine.AddTimedTransition(FROM_STATE_INDEX, TO_STATE_INDEX);`
 
 ### Action definition
 For each state you can define also a maximun of 64 qualified action, that will be execute when state is active causing effect to the target bool variable
