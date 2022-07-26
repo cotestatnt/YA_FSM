@@ -72,6 +72,14 @@ void setupStateMachine()
   stateMachine.AddState(stateName[YELLOW], YELLOW_TIME, onEnter, nullptr, onExit);
   stateMachine.AddState(stateName[CALL], CALL_DELAY, onEnterCall, nullptr, nullptr);
 
+  // Add the actions related to each state 
+  /*
+    N -> while state is active target variable == true
+    S -> SET target variable
+    R -> RESET target variable
+    L -> set target true for a limited time (Toff)
+    D -> set target to true after a delay (Ton)
+  */
   stateMachine.AddAction(RED, YA_FSM::N, redLed);       // N -> while state is active red led is ON
   stateMachine.AddAction(GREEN, YA_FSM::S, greenLed);   // S -> SET green led on
   stateMachine.AddAction(YELLOW, YA_FSM::R, greenLed);  // R -> RESET the green led
