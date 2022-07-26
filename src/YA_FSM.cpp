@@ -13,8 +13,7 @@ FSM_State *YA_FSM::GetStateAt(uint8_t index)
 	return nullptr;
 }
 
-uint8_t YA_FSM::AddState(const char *name, uint32_t maxTime, uint32_t minTime,
-												 action_cb onEntering, action_cb onState, action_cb onLeaving)
+uint8_t YA_FSM::AddState(const char *name, uint32_t maxTime, uint32_t minTime, action_cb onEntering, action_cb onState, action_cb onLeaving)
 {
 
 	FSM_State *state = new FSM_State();
