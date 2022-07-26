@@ -117,7 +117,7 @@ void setupStateMachine() {
   stateMachine.AddTransition(CLOSED, OPENING, startOpening);
   stateMachine.AddTransition(CLOSING, STOP_WAIT, safetyFtcTriggered);
 
-  // Add "timed" transitions: it will be triggered on previous defined state timeout
+  // Add "timed" transitions: it will be triggered on defined max state time
   stateMachine.AddTimedTransition(OPENING, OPENED);
   stateMachine.AddTimedTransition(OPENED, CLOSING);
   stateMachine.AddTimedTransition(CLOSING, CLOSED);
