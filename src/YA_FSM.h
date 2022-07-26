@@ -16,11 +16,11 @@ using condition_cb = bool (*)();
 struct FSM_Action
 {
 	bool xEdge = false;
-	uint8_t Type;				// The type of action  { 'N', 'S', 'R', 'L', 'D'};
-	uint8_t StateIndex; // Action valid for state defined
-	int32_t lTime = -1; // Last call time of Action (-1 not called)
+	uint8_t Type;		    // The type of action  { 'N', 'S', 'R', 'L', 'D'};
+	uint8_t StateIndex;     // Action valid for state defined
+	int32_t lTime = -1;     // Last call time of Action (-1 not called)
 	uint32_t Delay;			// For L - limited time and D - delayed actions
-	bool *Target;				// The variable wich is affected by action
+	bool *Target;			// The variable wich is affected by action
 	FSM_Action *nextAction = nullptr;
 };
 
@@ -37,8 +37,8 @@ struct FSM_State
 {
 	uint8_t index = 0;
 	bool timeout = false;
-	uint32_t maxTime = 0; // 0 -> No timeout
-	uint32_t minTime = 0; // 0 -> No min time
+	uint32_t maxTime = 0;   // 0 -> No timeout
+	uint32_t minTime = 0;   // 0 -> No min time
 	uint32_t enterTime;
 	action_cb OnEntering;
 	action_cb OnLeaving;
@@ -54,7 +54,7 @@ public:
 	// Default constructor
 	YA_FSM(){};
 
-	enum ActionsType {N, S,	R, L,	D	};
+	enum ActionsType {N, S,	R, L, D};
 
 	uint8_t AddState(const char *name, action_cb onEntering, action_cb onState, action_cb onLeaving);
 	uint8_t AddState(const char *name, uint32_t maxTime, uint32_t minTime, action_cb onEntering, action_cb onState, action_cb onLeaving);
