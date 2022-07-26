@@ -29,7 +29,7 @@ bool resetBlinky = false;
 
 // Check button status, return true only on rising edge (oldButton == false)
 bool checkButton() {
-	static bool oldButton;    // store last button state
+  static bool oldButton;    // store last button state
   static uint32_t pushTime;	// for button debouncing
 
 	bool but = (digitalRead(CHANGE_BTN) == LOW);
