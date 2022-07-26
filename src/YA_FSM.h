@@ -56,13 +56,9 @@ public:
 
 	enum ActionsType {N, S,	R, L,	D	};
 
-	uint8_t AddState(const char *name,
-									 action_cb onEntering, action_cb onState, action_cb onLeaving);
-
-	uint8_t AddState(const char *name, uint32_t maxTime, uint32_t minTime,
-									 action_cb onEntering, action_cb onState, action_cb onLeaving);
-	uint8_t AddState(const char *name, uint32_t maxTime,
-									 action_cb onEntering, action_cb onState, action_cb onLeaving);
+	uint8_t AddState(const char *name, action_cb onEntering, action_cb onState, action_cb onLeaving);
+	uint8_t AddState(const char *name, uint32_t maxTime, uint32_t minTime, action_cb onEntering, action_cb onState, action_cb onLeaving);
+	uint8_t AddState(const char *name, uint32_t maxTime, action_cb onEntering, action_cb onState, action_cb onLeaving);
 
 	uint8_t AddTransition(uint8_t inputState, uint8_t outputState, condition_cb condition = nullptr);
 	uint8_t AddTransition(uint8_t inputState, uint8_t outputState, bool &condition);
