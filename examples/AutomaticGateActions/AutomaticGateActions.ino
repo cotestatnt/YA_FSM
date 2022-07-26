@@ -1,3 +1,30 @@
+////////////////////// Small class for blink led handling  //////////////////////////////////////
+class Blinker
+{
+  private:
+    uint32_t blinkTime;
+    const uint8_t ledPin;
+    const uint32_t halfPeriod;
+
+  public:
+    BlinkLed(uint8_t pin, uint32_t time) : ledPin(pin), halfPeriod(time) {
+      pinMode(ledPin, OUTPUT);
+    }
+
+    bool blink(bool active) {
+      if (active) {
+        if (millis() - blinkTime > halfPeriod ) {
+          blinkTime = millis();
+          digitalWrite(ledPin, !digitalRead(ledPin));
+        }
+      }
+      else
+        digitalWrite(ledPin, LOW);
+      return active;
+    }
+};
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
 #include "YA_FSM.h"
 
 /*
@@ -43,38 +70,11 @@ uint8_t currentState;
 #define CLOSE_TIME      10000
 #define WAIT_FTC_TIME   5000    // If FTC1 during CLOSING, stop all, wait and then open again
 
-////////////////////// Small class for blink led handling  //////////////////////////////////////
-class BlinkLed
-{
-  private:
-    uint32_t blinkTime;
-    const uint8_t ledPin;
-    const uint32_t halfPeriod;
-
-  public:
-    BlinkLed(uint8_t pin, uint32_t time) : ledPin(pin), halfPeriod(time) {
-      pinMode(ledPin, OUTPUT);
-    }
-
-    bool blink(bool active) {
-      if (active) {
-        if (millis() - blinkTime > halfPeriod ) {
-          blinkTime = millis();
-          digitalWrite(ledPin, !digitalRead(ledPin));
-        }
-      }
-      else
-        digitalWrite(ledPin, LOW);
-      return active;
-    }
-};
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
 // Blink at 4 Hz when closing state is active
-BlinkLed blinkClose(LED_CLOSE, 250);
+Blinker blinkClose(LED_CLOSE, 250);
 
 // Blink at 2Hz when opening state is active
-BlinkLed blinkOpen(LED_OPEN, 500);
+Blinker blinkOpen(LED_OPEN, 500);
 
 
 /////////// STATE MACHINE CALLBACK FUNCTIONS ////////////////////////////////////////////////////
