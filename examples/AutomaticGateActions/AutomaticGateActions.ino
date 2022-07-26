@@ -93,7 +93,7 @@ void onExitClosed() {
   Serial.println(F("Start button pressed: going to open gate."));  
 }
 
-void onEneteringStopWait() {
+void onEnteringStopWait() {
   Serial.println(F("Safety FTC interrupted: \nclosing gate aborted, re-open and then restart the sequence after a pause."));
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -111,7 +111,7 @@ void setupStateMachine() {
   stateMachine.AddState(stateName[CLOSING], CLOSE_TIME, nullptr, nullptr, nullptr);
   stateMachine.AddState(stateName[OPENED],  WAIT_OPEN_TIME, onEnteringOpened, nullptr, nullptr);
   stateMachine.AddState(stateName[OPENING], OPEN_TIME,  nullptr, nullptr, nullptr);
-  stateMachine.AddState(stateName[STOP_WAIT], WAIT_FTC_TIME, onEneteringStopWait, nullptr, nullptr);
+  stateMachine.AddState(stateName[STOP_WAIT], WAIT_FTC_TIME, onEnteringStopWait, nullptr, nullptr);
 
   // Add transitions with related callback functions ( FROM, TO, lambda callback function)
   stateMachine.AddTransition(CLOSED, OPENING, startOpening);
