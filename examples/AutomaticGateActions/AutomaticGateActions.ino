@@ -13,7 +13,7 @@ const byte BTN_START = 2;
 const byte LED_OPEN = 12;
 const byte LED_CLOSE = 10;
 
-// Create new SC (num States, num Transition)
+// Create new SFC 
 YA_FSM stateMachine;
 
 // Input Alias. We use Input as trigging condition in defined transition
