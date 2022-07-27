@@ -3,5 +3,5 @@
 
 
 
-Link to a [Wokwi AutomaticGateAction example](https://wokwi.com/projects/338135007018091090)
+Link to a [Wokwi PedestrianLight.ino example](https://wokwi.com/projects/338135007018091090)
 
