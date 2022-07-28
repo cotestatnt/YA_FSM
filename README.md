@@ -80,7 +80,8 @@ or a more advanced like classic algorithm for opening an automatic gate (simplif
 ### Constructor
 
 ```c++
-YA_FSM();
+// Create new SFC
+YA_FSM stateMachine;
 
 ```
 ### General methods
