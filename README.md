@@ -30,13 +30,21 @@ stateMachine.AddState(STATE_LABEL, TIME_MAX, onEnterCB, onStateCB, onExitCB);
 ```
 
 ### Transition definition and trigger
-To connect two states, you need to define the transition. The trigger of transition can be performed with a bool function() or a bool variable. Also the timeout of state itself (it is a bool) can be used for triggering to next state. 
+To connect two states, you need to define the transition. The trigger of transition can be performed with a bool function() or a bool variable. 
 
-In order to check if a specific state has timeout call method `Timeout(state_index)`. You can also check the value of `timeout` property.
+Also the timeout of state itself (it is a bool) can be used for triggering to next state. 
 
-For example in this instruction is used a **lambda function** returning the value of timout for current state (FROM_STATE_INDEX) stored in the related struct of type [FSM_State](https://github.com/cotestatnt/YA_FSM/blob/master/src/YA_FSM.h#L15)
+In order to check if a specific state has exceeded its timeout, use the `AddTimedTransition()` method, which checks the `CurrentState()->timeout` bool property stored in the related struct of type [FSM_State](https://github.com/cotestatnt/YA_FSM/blob/master/src/YA_FSM.h#L15)
 
-` stateMachine.AddTransition(FROM_STATE_INDEX, TO_STATE_INDEX, [](){return stateMachine.CurrentState()->timeout;} );`
+` stateMachine.AddTimedTransition(FROM_STATE_INDEX, TO_STATE_INDEX);`
+
+
+You can check timeout for a specific state also testing the property `timeout`
+
+``` 
+if(stateMachine.CurrentState()->timeout) {....}
+if(stateMachine.Timeout(state_index)) {....}
+```
 
 ### Action definition
 For each state you can define also a maximun of 64 qualified action, that will be execute when state is active causing effect to the target bool variable
@@ -94,6 +102,9 @@ FSM_State*  GetStateAt(uint8_t index);
 // Get active state name
 const char* ActiveStateName();
 
+// Get the number of defined finite states
+const int GetNumStates()
+
 // Set machine to state at index. Will call every function as expected unless told otherwise
 // If is the same state as the current, it should call onEntering and onLeaving and Refresh Timeout
 void SetState (uint8_t index, bool callOnEntering = true, bool callOnLeaving = true)
@@ -112,9 +123,13 @@ uint32_t GetEnteringTime(uint8_t index)
 // Update state machine. Run in loop()
 bool Update();
 
-// Set up a transition and trigger input callback function (or variable)
+// Set up a transition and trigger input callback function (or bool variable)
 void AddTransition(uint8_t inputState, uint8_t outputState, condition_cb condition);
 void AddTransition(uint8_t inputState, uint8_t outputState, bool condition);
+
+// Set up a timed transition
+void AddTransition(uint8_t inputState, uint8_t outputState);
+void AddTimedTransition(uint8_t inputState, uint8_t outputState);
 
 // Set up and action for a specific state (supported qualifiers N, S, R, D, L
 // More actions can be added to the same state (actaully limited by #define MAX_ACTIONS 64)
@@ -138,6 +153,8 @@ void ClearOnState(uint8_t index);
 ### Supported boards
 The library works virtually with every boards supported by Arduino framework (no hardware dependency)
 
++ 1.0.7 Added utility class for led blinking (Blinker.h)
++ 1.0.6 Added timed transition
 + 1.0.5 Added support for Action Qualifiers N, S, R, D, L  (pedestrainLight example updated with this method)
 + 1.0.4 Examples simplified, bug fixes
 + 1.0.3 Added ActiveStateName() method and updated all examples with new style (addTransition() and addStep() )
