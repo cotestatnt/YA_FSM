@@ -5,10 +5,6 @@ The YA_FSM Arduino library implements a **Finite State Machine** with pre-define
 
 This library try to reproduce the type of automation you can define with a SFC/Grapcet model. In the example folders you can find an image where the inspiring FSM model is represented with an SFC diagram 
 
-## TO-DO (partially done): 
-
-~~Add method to handle **actions** defined for each state, at the moment demanded to callback functions~~ 
-
 ___
 ### Introduction
 
@@ -16,12 +12,14 @@ States represent the different situations in which the machine can be at any tim
 
 To update the states, you must call the Update() function in your loop(), which checks for transitions that have the current state as input and associated conditions.
 
-If any of the transitions associated with the current state satisfy the trigger condition, the machine goes into the next state  defined in transition property.
+If any of the transitions associated with the current state satisfy the trigger condition, the machine goes into the next state.
 
 ![SFC_esempio](https://user-images.githubusercontent.com/27758688/125982036-0eab0bb2-ed13-4101-af5c-6e49e82908fd.png)
 
 ### State definition and Callback functions
-Each of the states of the machine can be associated with a callback function that will be executed when the state is activated (on entering), when it is left (on leaving) and while it is running (on state). For each status it is also possible to define a maximum and a minimum duration time.
+Each of the states of the machine can be binded with a callback function that will be executed when the state is activated (on entering), when it is left (on leaving) and while it is running (on state). 
+
+For each state it is also possible to define an optional maximum and a minimum duration time.
 
 If a callback function is not needed, simply use value `nullptr` instead of the name of function.
 ```
@@ -47,11 +45,12 @@ if(stateMachine.Timeout(state_index)) {....}
 ```
 
 ### Action definition
-For each state you can define also a maximun of 64 qualified action, that will be execute when state is active causing effect to the target bool variable
+For each state you can define also a set of qualified action, that will be execute when state is active causing effect to the target bool variable
 
 ```
-bool targetVar;
-stateMachine.AddAction(STATE_INDEX, YA_FSM::N, targetVar);
+bool targetVar1, targetVar2;
+stateMachine.AddAction(STATE_INDEX, YA_FSM::N, targetVar1);
+stateMachine.AddAction(STATE_INDEX, YA_FSM::R, targetVar2);
 ```
 
 The library actually support this action qualifiers:
@@ -83,9 +82,6 @@ or a more advanced like classic algorithm for opening an automatic gate (simplif
 ```c++
 YA_FSM();
 
-------- OLD VERSION  -------
-YA_FSM (uint8_t states, uint8_t transitions);
----------------------------
 ```
 ### General methods
 ```c++
