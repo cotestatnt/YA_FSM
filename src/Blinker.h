@@ -20,7 +20,7 @@ class Blinker
       halfPeriod = time;
     }
 
-    bool blink(bool active) {
+    bool blink(bool active = true) {
       if (active) {
         if (millis() - blinkTime > halfPeriod ) {
           blinkTime = millis();
