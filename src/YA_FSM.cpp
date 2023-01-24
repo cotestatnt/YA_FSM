@@ -383,3 +383,16 @@ void YA_FSM::ClearOnLeaving(uint8_t index)
 	FSM_State *state = GetStateAt(index);
 	state->OnLeaving = nullptr;
 }
+
+
+void YA_FSM::setStateMaxTime(uint8_t inputState, uint32_t time)
+{
+	FSM_State *state = GetStateAt(inputState);
+	state->maxTime = time;
+}
+
+void YA_FSM::setStateMinTime(uint8_t inputState, uint32_t time)
+{
+	FSM_State *state = GetStateAt(inputState);
+	state->minTime = time;
+}

@@ -94,6 +94,10 @@ public:
 		return m_stateIndex;
 	}
 
+	void setStateMinTime(uint8_t inputState, uint32_t time);
+	void setStateMaxTime(uint8_t inputState, uint32_t time);
+
+
 	// only for compatibility with old version
 	[[deprecated("Replaced by Timeout()")]] bool GetTimeout(uint8_t index);
 	[[deprecated("Replaced by all in once method AddState()")]] void SetOnEntering(uint8_t index, action_cb action);
