@@ -150,6 +150,7 @@ void ClearOnState(uint8_t index);
 ### Supported boards
 The library works virtually with every boards supported by Arduino framework (no hardware dependency)
 
++ 1.0.8 Edit state min and max time at runtime
 + 1.0.7 Added utility class for led blinking (Blinker.h)
 + 1.0.6 Added timed transition
 + 1.0.5 Added support for Action Qualifiers N, S, R, D, L  (pedestrainLight example updated with this method)
