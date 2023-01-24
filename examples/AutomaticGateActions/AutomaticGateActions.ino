@@ -107,7 +107,7 @@ void setupStateMachine() {
     Add States => name, timeout, onEnter cb, onState cb, onLeave cb
     Add States => name, onEnter cb, onState cb, onLeave cb
   */
-  stateMachine.AddState(stateName[CLOSED], onEnteringClosed, nullptr, nullptr, onExitClosed);
+  stateMachine.AddState(stateName[CLOSED], onEnteringClosed, nullptr, onExitClosed);
   stateMachine.AddState(stateName[CLOSING], CLOSE_TIME, nullptr, nullptr, nullptr);
   stateMachine.AddState(stateName[OPENED],  WAIT_OPEN_TIME, onEnteringOpened, nullptr, nullptr);
   stateMachine.AddState(stateName[OPENING], OPEN_TIME,  nullptr, nullptr, nullptr);

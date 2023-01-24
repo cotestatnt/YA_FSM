@@ -3,11 +3,7 @@
 
 The YA_FSM Arduino library implements a **Finite State Machine** with pre-defined states and transitions associated to callback functions.
 
-This library try to reproduce the type of automation you can define with a SFC/Grapcet model. In the example folders you can find an image where the inspiring FSM model is represented with an SFC diagram 
-
-## TO-DO (partially done): 
-
-~~Add method to handle **actions** defined for each state, at the moment demanded to callback functions~~ 
+This library try to reproduce the type of automation you can define with a SFC/GRAFCET model. In the example folders you can find an image where the inspiring FSM model is represented with an SFC diagram 
 
 ___
 ### Introduction
@@ -16,12 +12,14 @@ States represent the different situations in which the machine can be at any tim
 
 To update the states, you must call the Update() function in your loop(), which checks for transitions that have the current state as input and associated conditions.
 
-If any of the transitions associated with the current state satisfy the trigger condition, the machine goes into the next state  defined in transition property.
+If any of the transitions associated with the current state satisfy the trigger condition, the machine goes into the next state.
 
 ![SFC_esempio](https://user-images.githubusercontent.com/27758688/125982036-0eab0bb2-ed13-4101-af5c-6e49e82908fd.png)
 
 ### State definition and Callback functions
-Each of the states of the machine can be associated with a callback function that will be executed when the state is activated (on entering), when it is left (on leaving) and while it is running (on state). For each status it is also possible to define a maximum and a minimum duration time.
+Each of the states of the machine can be binded with a callback function that will be executed when the state is activated (on entering), when it is left (on leaving) and while it is running (on state). 
+
+For each state it is also possible to define an optional maximum and a minimum duration time.
 
 If a callback function is not needed, simply use value `nullptr` instead of the name of function.
 ```
@@ -30,20 +28,29 @@ stateMachine.AddState(STATE_LABEL, TIME_MAX, onEnterCB, onStateCB, onExitCB);
 ```
 
 ### Transition definition and trigger
-To connect two states, you need to define the transition. The trigger of transition can be performed with a bool function() or a bool variable. Also the timeout of state itself (it is a bool) can be used for triggering to next state. 
+To connect two states, you need to define the transition. The trigger of transition can be performed with a bool function() or a bool variable. 
 
-In order to check if a specific state has timeout call method `Timeout(state_index)`. You can also check the value of `timeout` property.
+Also the timeout of state itself (it is a bool) can be used for triggering to next state. 
 
-For example in this instruction is used a **lambda function** returning the value of timout for current state (FROM_STATE_INDEX) stored in the related struct of type [FSM_State](https://github.com/cotestatnt/YA_FSM/blob/master/src/YA_FSM.h#L15)
+In order to check if a specific state has exceeded its timeout, use the `AddTimedTransition()` method, which checks the `CurrentState()->timeout` bool property stored in the related struct of type [FSM_State](https://github.com/cotestatnt/YA_FSM/blob/master/src/YA_FSM.h#L15)
 
-` stateMachine.AddTransition(FROM_STATE_INDEX, TO_STATE_INDEX, [](){return stateMachine.CurrentState()->timeout;} );`
+` stateMachine.AddTimedTransition(FROM_STATE_INDEX, TO_STATE_INDEX);`
+
+
+You can check timeout for a specific state also testing the property `timeout`
+
+``` 
+if(stateMachine.CurrentState()->timeout) {....}
+if(stateMachine.Timeout(state_index)) {....}
+```
 
 ### Action definition
-For each state you can define also a maximun of 64 qualified action, that will be execute when state is active causing effect to the target bool variable
+For each state you can define also a set of qualified action, that will be execute when state is active causing effect to the target bool variable
 
 ```
-bool targetVar;
-stateMachine.AddAction(STATE_INDEX, YA_FSM::N, targetVar);
+bool targetVar1, targetVar2;
+stateMachine.AddAction(STATE_INDEX, YA_FSM::N, targetVar1);
+stateMachine.AddAction(STATE_INDEX, YA_FSM::R, targetVar2);
 ```
 
 The library actually support this action qualifiers:
@@ -73,11 +80,9 @@ or a more advanced like classic algorithm for opening an automatic gate (simplif
 ### Constructor
 
 ```c++
-YA_FSM();
+// Create new SFC
+YA_FSM stateMachine;
 
-------- OLD VERSION  -------
-YA_FSM (uint8_t states, uint8_t transitions);
----------------------------
 ```
 ### General methods
 ```c++
@@ -93,6 +98,9 @@ FSM_State*  GetStateAt(uint8_t index);
 
 // Get active state name
 const char* ActiveStateName();
+
+// Get the number of defined finite states
+const int GetNumStates()
 
 // Set machine to state at index. Will call every function as expected unless told otherwise
 // If is the same state as the current, it should call onEntering and onLeaving and Refresh Timeout
@@ -112,9 +120,13 @@ uint32_t GetEnteringTime(uint8_t index)
 // Update state machine. Run in loop()
 bool Update();
 
-// Set up a transition and trigger input callback function (or variable)
+// Set up a transition and trigger input callback function (or bool variable)
 void AddTransition(uint8_t inputState, uint8_t outputState, condition_cb condition);
 void AddTransition(uint8_t inputState, uint8_t outputState, bool condition);
+
+// Set up a timed transition
+void AddTransition(uint8_t inputState, uint8_t outputState);
+void AddTimedTransition(uint8_t inputState, uint8_t outputState);
 
 // Set up and action for a specific state (supported qualifiers N, S, R, D, L
 // More actions can be added to the same state (actaully limited by #define MAX_ACTIONS 64)
@@ -138,6 +150,8 @@ void ClearOnState(uint8_t index);
 ### Supported boards
 The library works virtually with every boards supported by Arduino framework (no hardware dependency)
 
++ 1.0.7 Added utility class for led blinking (Blinker.h)
++ 1.0.6 Added timed transition
 + 1.0.5 Added support for Action Qualifiers N, S, R, D, L  (pedestrainLight example updated with this method)
 + 1.0.4 Examples simplified, bug fixes
 + 1.0.3 Added ActiveStateName() method and updated all examples with new style (addTransition() and addStep() )
