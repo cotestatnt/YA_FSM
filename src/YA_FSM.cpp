@@ -186,23 +186,23 @@ bool YA_FSM::Update()
 		{
 			bool _trigger = false;
 
-			// If a max time was defined check if current state is on timeout
-			if (m_currentState->maxTime)
-			{
-				m_currentState->timeout = millis() - m_currentState->enterTime > m_currentState->maxTime;
-				// Trigger transition on timeout
-				if (m_currentState->timeout)
-					_trigger = true;
-			}
-
 			// Trigger transition on callback function result if defined
-			else if (actualtr->Condition != nullptr)
+			if (actualtr->Condition != nullptr)
 				_trigger = actualtr->Condition();
 
 			// Trigger transition on bool variable value == true
 			else if (actualtr->ConditionVar != nullptr)
 				_trigger = *(actualtr->ConditionVar);
 
+			// If a max time was defined check if current state is on timeout
+			else if (m_currentState->maxTime)
+			{
+				m_currentState->timeout = millis() - m_currentState->enterTime > m_currentState->maxTime;
+				// Trigger transition on timeout
+				if (m_currentState->timeout)
+					_trigger = true;
+			}
+			
 			if (_trigger)
 			{
 				// Check if state is on at least from minTime
